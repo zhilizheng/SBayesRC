@@ -5,14 +5,15 @@ This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporat
 ```
 ## Install by devtools
 devtools::install_github("zhilizheng/SBayesRC")
-## package under reformating of the outputs, the funtional related outputs will be enhanced soon.
+## package under reformating of the outputs, the functional related outputs will be enhanced soon.
 ```
 
 ## Resources
 Download the resources and decompress by unzip:
-* Baseline model 2.2 (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
+* [Baseline model 2.2](https://broadinstitute-my.sharepoint.com/:u:/g/personal/zhengzhi_broadinstitute_org/EaFPvEwSuUJIvNRD5qWnnj0BhsM08JWos7DH1Z4aMzZUfg?e=tDCcOb) (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
 * LD refernce (decompressed to LD_PATH):
-UKB EUR, EAS (only needed for SBayesRC-multi).
+
+[UKB EUR 7M](), [UKB EAS 7M]().
 
 We will provided functions to generate LD from customized genotypes soon. 
 
