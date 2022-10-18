@@ -5,6 +5,7 @@ This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporat
 ```
 ## Install by devtools
 devtools::install_github("zhilizheng/SBayesRC")
+## package under reformating of the outputs, the funtional related outputs will be enhanced soon.
 ```
 
 ## Resources
@@ -87,6 +88,6 @@ The outputs are:
 * SNP weights (in 0/1/2 genotype scale): ${out_prefix}_sbrc.txt
 * Running logs:  ${out_prefix}_sbrc.log
 * Parameter estimation: ${out_prefix}_sbrc.rds 
-* Other files: Functional enrichments, genetic 
+* Other files: Functional heritability enrichments, functional genetic architecture (documents update soon). 
 # Citation
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
