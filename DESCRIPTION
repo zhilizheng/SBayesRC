@@ -1,0 +1,27 @@
+Package: SBayesRC
+Type: Package
+Title: Run SBayesRC eigen
+Version: 0.1.1
+Date: 2022-10-17
+Description: SBayesRC eigen
+Authors@R: c(
+  person("Zhili","Zheng", role=c("aut","cre"), email="zhilizheng@outlook.com"),
+  person("Jian","Zeng", role=c("aut"), email="j.zeng@uq.edu.au")
+  )
+License: GPL (>= 3)
+Imports: 
+    Rcpp,
+    data.table
+LinkingTo: Rcpp, BH, RcppArmadillo, RcppEigen
+RoxygenNote: 7.2.1
+Depends:
+    R (>= 2.15),
+    methods,
+    utils,
+    stats
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+NeedsCompilation: yes
+ByteCompile: TRUE
