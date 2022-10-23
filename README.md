@@ -11,7 +11,7 @@ devtools::install_github("zhilizheng/SBayesRC")
 ## Resources
 Download the resources and decompress by unzip:
 * [Baseline model 2.2](https://broadinstitute-my.sharepoint.com/:u:/g/personal/zhengzhi_broadinstitute_org/EaFPvEwSuUJIvNRD5qWnnj0BhsM08JWos7DH1Z4aMzZUfg?e=tDCcOb) (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
-* LD refernce (decompressed to LD_PATH): [UKB EUR 7M](), [UKB EAS 7M]().
+* LD refernce (decompressed to LD_PATH): [UKB EUR](), [UKB EAS]().
 
 We will provided functions to generate LD from customized genotypes soon. 
 
@@ -32,7 +32,8 @@ SBayesRC::tidy(mafile, LD_PATH, output_FILE)
 Parameters:
 
 mafile: the path to summary statitics followed [COJO format](https://yanglab.westlake.edu.cn/software/gcta/#COJO), example:
-```SNP A1 A2 freq b se p N 
+```
+SNP A1 A2 freq b se p N 
 rs1001 A G 0.8493 0.0024 0.0055 0.6653 129850 
 rs1002 C G 0.0306 0.0034 0.0115 0.7659 129799 
 rs1003 A C 0.5128 0.0045 0.0038 0.2319 129830
