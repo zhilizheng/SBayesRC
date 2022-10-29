@@ -91,3 +91,6 @@ The outputs are:
 * Other files: Functional heritability enrichments, functional genetic architecture (documents update soon). 
 # Citation
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
+
+# Bug report
+Report an issue by "new issue" tab in github.
