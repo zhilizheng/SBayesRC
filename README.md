@@ -10,8 +10,8 @@ devtools::install_github("zhilizheng/SBayesRC")
 
 ## Resources
 Download the resources and decompress by unzip:
-* [Baseline model 2.2](https://broadinstitute-my.sharepoint.com/:u:/g/personal/zhengzhi_broadinstitute_org/EaFPvEwSuUJIvNRD5qWnnj0BhsM08JWos7DH1Z4aMzZUfg?e=tDCcOb) (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
-* LD refernce (decompressed to LD_PATH): UKB EUR, UKB EAS ([link](https://broadinstitute-my.sharepoint.com/:f:/g/personal/zhengzhi_broadinstitute_org/EmN4lg1qO6xEoRQwEh_I148BZFKG3ndcbaDCIWVirahLLw?e=acWEjq)).
+* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
+* LD refernce (decompressed to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggested to download Imputed LD in same ancestry to your summary data.
 
 We will provided functions to generate LD from customized genotypes soon. 
 
