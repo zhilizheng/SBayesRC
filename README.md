@@ -5,13 +5,13 @@ This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporat
 ```
 ## Install by devtools
 devtools::install_github("zhilizheng/SBayesRC")
-## package under reformating of the output, the functional related outputs will be enhanced soon.
+## package under reformating of the functional related outputs. Headers will be added. 
 ```
 
 ## Resources
 Download the resources and decompress by unzip:
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (decompressed to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
-* LD refernce (decompressed to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggested to download Imputed LD in same ancestry to your summary data.
+* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
+* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download Imputed LD in the same ancestry as your summary data.
 
 We will provided functions to generate LD from customized genotypes soon. 
 
