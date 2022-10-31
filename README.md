@@ -10,7 +10,7 @@ devtools::install_github("zhilizheng/SBayesRC")
 
 ## Resources
 Download the resources and decompress by unzip:
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9))
+* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)). Customized annnotation should be provided in the same format with the first two columns as SNP and Intercept (all 1)
 * LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download Imputed LD in the same ancestry as your summary data.
 
 We will provided functions to generate LD from customized genotypes soon. 
@@ -64,13 +64,13 @@ SBayesRC::sbayesrc(mafile, LD_PATH, output_FILE)
 fileAnnot is the path to annotation file. Other parameters are same above. 
 
 # Example code
-This is an example to generate the SNP weights for a summary data (in bash). 
+This is an complete example to run SBayesRC for a summary data (in bash). 
 
 ```
-ld_folder="YOUR_PATH"    # LD reference path
-annot="YOUR_ANNOT_FILE"  # annotation
-ma_file="MA_file"        # summary file name
-out_prefix="YOUR_PATH"   # output
+ma_file="MA_file"        # summary file path (the only input needed)
+out_prefix="YOUR_PATH"   # output path prefix
+ld_folder="YOUR_PATH"    # LD reference path (download from above)
+annot="YOUR_ANNOT_FILE"  # annotation (download from above)
 
 # Tidy
 Rscript -e "SBayesRC::tidy('$ma_file', '$ld_folder', '${out_prefix}_tidy.ma')"
@@ -85,10 +85,13 @@ Rscript -e "SBayesRC::sbayesrc('${out_prefix}_imp.ma', '$ld_folder', '${out_pref
 
 The outputs are:
 
-* SNP weights (in 0/1/2 genotype scale): ${out_prefix}_sbrc.txt
-* Running logs:  ${out_prefix}_sbrc.log
-* Parameter estimation: ${out_prefix}_sbrc.rds 
-* Other files: Functional heritability enrichments, functional genetic architecture (documents update soon). 
+* SNP weights (${out_prefix}_sbrc.txt).  First 3 columns are for PGS calculation (SNP: SNP id; A1: effect allele; BETA: joint effect on 0/1/2 genotype scale), it can be the input for other tools directly (e.g. PLINK). Other columns:  PIP: posterior inclusion probability of the variant to be causal from MCMC iterations after burn-in; BETAlast: joint effect obtained in last iteration on 0/1/2 scale.
+* Running logs(${out_prefix}_sbrc.log): the estimated runtime is included; provide the logs if you would like to report a problem.  
+* Parameter estimation (${out_prefix}_sbrc.par): parameter estimations for heritablity (hsq) and number of non-zero effect varints (nnz). Details (${out_prefix}_sbrc.rds) could be loaded by R readRDS, it's a list with names indicates the variables estimated.
+* Functional per-SNP heritability enrichments (${out_prefix}.vg.enrich.qt):  Heritability enrichment for each annotation in the MCMC iterations after burn-in. Each row is an output of enrichment (output per 10 iterations); each column is the enrichment indicated in the header line.
+* Proportion of variants' effects in a functional annotation belonging to each of the mixture distributions (${out_prefix}.annoJointProb${comp}):  ${comp} 0 zero effec; 1 small effect; 2 median effect; 3 large effect; 4 very large effect. Each row is an output from MCMC (output per 10 iterations); each column is the functional category indicated in the header line.
+* Documents for other outputs will be provided in the future. 
+
 # Citation
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
 
