@@ -1,7 +1,7 @@
 Package: SBayesRC
 Type: Package
 Title: Run SBayesRC eigen
-Version: 0.1.1
+Version: 0.1.2
 Date: 2022-10-17
 Description: SBayesRC eigen
 Authors@R: c(

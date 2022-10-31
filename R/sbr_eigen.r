@@ -80,6 +80,12 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         stop("annot can't work in SBayesC yet")
     }
 
+    message("------------------------------------------")
+    message("SBayesRC v", packageVersion("SBayesRC"))
+    message("Developed by Zhili Zheng and Jian Zeng")
+    message("------------------------------------------")
+
+
     logfile = paste0(outfile, ".log")
     message("Logging to ", logfile)
     message("Please look into log file, the console output will be empty")
@@ -88,21 +94,27 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     sink(zz)
     sink(zz, type="message")
 
+    message("------------------------------------------")
+    message("SBayesRC v", packageVersion("SBayesRC"))
+    message("Developed by Zhili Zheng and Jian Zeng")
+    message("------------------------------------------")
+
     message("Node: ", Sys.info()['nodename'])
-    message("Run data with method ", submethod, ", ori?", bOri)
-    message(" Annotation: ", bAnnot)
+    #message("Run with method ", submethod, ", ori?", bOri)
+    message(" With annotation: ", bAnnot)
     if(bAnnot) message(" Annotation file: ", fileAnnot)
-    message(" Summary: ", file_summary)
-    message(" LD: ", ld_folder, ", var threshold: ", thresh)
+    message(" Summary file: ", file_summary)
+    message(" LD input: ", ld_folder, ", var threshold: ", thresh)
     message(" Re-sample Ve: ", cSamVe)
     message(" Start Pi: ", paste(startPiR, collapse=" "))
-    message(" gamma: ", paste(gamma, collapse=" "))
-    message(" niter: ", niter)
-    message(" burn: ", burn)
-    message(" start hsq: ", starth2)
+    message(" Gamma for effects: ", paste(gamma, collapse=" "))
+    message(" Number of iteration: ", niter)
+    message("   Burn-in iteration: ", burn)
+    message(" Start hsq: ", starth2)
     message(" Use 2pq: ", bTwopq)
-    message(" output detail: ", bOutDetail)
-    message(" resamve thresh:", resam_thresh)
+    #message(" output detail: ", bOutDetail)
+    message(" Threshold to re-sample residual: ", resam_thresh)
+    message("------------------------------------------")
 
     mafile = file_summary
     ma = fread(mafile)
@@ -147,15 +159,13 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     ma_ord[, D:=2 * freq * (1 - freq) * N]
     ma_ord[, varps:=D*(N * se^2 + b^2)/N]
     vary = median(ma_ord$varps)
-    message("vary: ", vary)
+    message("Observed phenotypic variance: ", vary)
 
 
     ord_std = c()
     if(bTwopq){
-        message(" using std by 2pq")
         ord_std = 1.0 / sqrt( 2 * ma_ord$freq * (1 - ma_ord$freq)) 
     }else{
-        message(" using std by phenotipic = 1 and var(x)")
         vary = 1;
         ord_std = sqrt((ma_ord$N) * ma_ord$se^2 + ma_ord$b^2)
     }
@@ -170,6 +180,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
     annoMat = matrix(0, ncol=0, nrow=0)
     numAnno = 0
+    annoStrings = colnames(annoMat)
     tempFileAnnot = paste0(outfile, ".annot.tmp.bin")
     if(bAnnot){
         anno = fread(fileAnnot, head=TRUE)
@@ -194,6 +205,8 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
             rm(conv_mat)
         }
 
+        annoStrings = colnames(anno)[2:colAnno]
+
         annoMat[is.na(annoMat)] = 0
 
         rm(conv_anno, commSNP, idx, anno)
@@ -214,7 +227,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     if(file.exists(outRes)){
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, ld_folder, vary, n, gamma, startPiR, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPiR, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail)
         saveRDS(res, file=outRes)
     }
 
@@ -222,8 +235,15 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         file.remove(tempFileAnnot)
     }
 
-    out = data.table(SNP=snp, A1=a1, beta=res$betaMean * ord_std)
+    out = data.table(SNP=snp, A1=a1, BETA=res$betaMean * ord_std, PIP=(1 - res$pip[,1]),  BETAlast=res$betaLast * ord_std)
     fwrite(out, file=paste0(outfile, ".txt"), sep="\t", na="NA", quote=FALSE)
+
+    message("------------------------------------------")
+    message("Parameter estimation:")
+    print(res$par)
+
+    out.par = data.table(name=names(res$par), value=res$par)
+    fwrite(out.par, file=paste0(outfile, ".par"), sep="\t", na="NA", quote=FALSE, col.names=F)
 
     message("All done!")
     print(proc.time())

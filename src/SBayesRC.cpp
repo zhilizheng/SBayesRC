@@ -22,7 +22,7 @@
 #include <Rcpp/Benchmark/Timer.h>
 
 
-SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail){
+SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail){
 
     this->niter = niter;
     this->burn = burn;
@@ -53,7 +53,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::string
     if(bAnnot){
         snpPi.resize(nMarker, ndist);
         anno = new AnnoProb(fileAnnot, numAnno, pi, snpPi, bOutDetail);
-        if(!outPrefix.empty()) anno->open(outPrefix);
+        if(!outPrefix.empty()) anno->open(outPrefix, annoStrs);
     }
     //annoMat.resize(0, 0);
 

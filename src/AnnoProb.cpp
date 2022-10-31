@@ -14,6 +14,7 @@
 #ifdef _OPENMP
   #include <omp.h>
 #endif
+#include <boost/algorithm/string/join.hpp>
 
 void AnnoProb::initP_Pi_annoAlpha(const VectorXf &pi, MatrixXf &snpPi) {
     int ndist = pi.size();
@@ -72,7 +73,7 @@ void AnnoProb::output(){
     
 }
 
-void AnnoProb::open(string prefix){
+void AnnoProb::open(string prefix, const vector<string> &annoStrs){
     // vg_tot_annot: numAnno * 1
     // vg_enrich_qt: numAnno * 1 
     // vg_enrich_bin: numAnno * 1
@@ -100,7 +101,30 @@ void AnnoProb::open(string prefix){
         outs.emplace("alpha" + to_string(i), ofstream((prefix + ".alpha" + to_string(i) )));
         outs.emplace("annoCondProb" + to_string(i), ofstream((prefix + ".annoCondProb" + to_string(i) )));
     }
-   
+
+    writeHeader(annoStrs);
+}
+
+void AnnoProb::writeHeader(const vector<string> &annoStrs){
+    string delim = "\t";
+    string header = boost::algorithm::join(annoStrs, delim);
+
+    outs["vg_tot_annot"] << header << std::endl;
+    outs["vg_enrich_bin"] << header << std::endl;
+    outs["vg_enrich_qt"] << header << std::endl;
+
+    for(int i = 0; i < numDist; i++){
+        if(bOutDetail){
+            outs["annoDists" + to_string(i)] << header << std::endl;
+        }
+        outs["vg_annot_comp" + to_string(i)] << header << std::endl;
+        outs["annoJointProb" + to_string(i)] << header << std::endl;
+    }
+
+    for(int i = 0; i < numComp; i++){
+        outs["alpha" + to_string(i)] << header << std::endl;
+        outs["annoCondProb" + to_string(i)] << header << std::endl;
+    }
 }
 
 void AnnoProb::close(){

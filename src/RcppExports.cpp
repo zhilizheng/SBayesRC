@@ -42,8 +42,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sbayesr_eigen_joint_annot
-List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail);
-RcppExport SEXP _SBayesRC_sbayesr_eigen_joint_annot(SEXP niterSEXP, SEXP burnSEXP, SEXP bhatSEXP, SEXP numAnnoSEXP, SEXP mldmDirSEXP, SEXP varySEXP, SEXP blkNSEXP, SEXP cgammaSEXP, SEXP startPiSEXP, SEXP starth2SEXP, SEXP cutThreshSEXP, SEXP bOriginSEXP, SEXP outPrefixSEXP, SEXP samVeSEXP, SEXP resam_threshSEXP, SEXP bOutDetailSEXP) {
+List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail);
+RcppExport SEXP _SBayesRC_sbayesr_eigen_joint_annot(SEXP niterSEXP, SEXP burnSEXP, SEXP bhatSEXP, SEXP numAnnoSEXP, SEXP annoStrsSEXP, SEXP mldmDirSEXP, SEXP varySEXP, SEXP blkNSEXP, SEXP cgammaSEXP, SEXP startPiSEXP, SEXP starth2SEXP, SEXP cutThreshSEXP, SEXP bOriginSEXP, SEXP outPrefixSEXP, SEXP samVeSEXP, SEXP resam_threshSEXP, SEXP bOutDetailSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,6 +51,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type bhat(bhatSEXP);
     Rcpp::traits::input_parameter< int >::type numAnno(numAnnoSEXP);
+    Rcpp::traits::input_parameter< Rcpp::StringVector >::type annoStrs(annoStrsSEXP);
     Rcpp::traits::input_parameter< std::string >::type mldmDir(mldmDirSEXP);
     Rcpp::traits::input_parameter< double >::type vary(varySEXP);
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type blkN(blkNSEXP);
@@ -63,7 +64,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type samVe(samVeSEXP);
     Rcpp::traits::input_parameter< double >::type resam_thresh(resam_threshSEXP);
     Rcpp::traits::input_parameter< bool >::type bOutDetail(bOutDetailSEXP);
-    rcpp_result_gen = Rcpp::wrap(sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, mldmDir, vary, blkN, cgamma, startPi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail));
+    rcpp_result_gen = Rcpp::wrap(sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -71,7 +72,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_SBayesRC_cutLD", (DL_FUNC) &_SBayesRC_cutLD, 3},
     {"_SBayesRC_impGa", (DL_FUNC) &_SBayesRC_impGa, 6},
-    {"_SBayesRC_sbayesr_eigen_joint_annot", (DL_FUNC) &_SBayesRC_sbayesr_eigen_joint_annot, 16},
+    {"_SBayesRC_sbayesr_eigen_joint_annot", (DL_FUNC) &_SBayesRC_sbayesr_eigen_joint_annot, 17},
     {NULL, NULL, 0}
 };
 

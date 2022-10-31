@@ -12,6 +12,7 @@
 #ifndef SBAYESRC_HPP
 #define SBAYESRC_HPP
 #include <Eigen/Eigen>
+#include <vector>
 
 #include "AnnoProb.hpp"
 #include "BlockLDeig.hpp"
@@ -23,7 +24,7 @@ using Eigen::MatrixXf;
 class SBayesRC{
 
 public:
-    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false);
+    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false);
     void mcmc();
     VectorXd get_mean_par_vec();
     VectorXf get_betaMean_vec();

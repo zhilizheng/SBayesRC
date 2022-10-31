@@ -66,6 +66,7 @@ class AnnoProb {
     void annoEffect_sample_Gibbs(const MatrixXf &z);
     void compute_AnnoJointProb();
     void computePiFromP(const MatrixXf &snpP, MatrixXf &snpPi);
+    void writeHeader(const vector<string> &annoStrs);
 
    public:
     AnnoProb(string fileAnnot, int numAnno,  const VectorXf &Pi, MatrixXf &snpPi, bool bOutDetail);
@@ -77,7 +78,7 @@ class AnnoProb {
 
     void computeProb();
 
-    void open(string prefix);
+    void open(string prefix, const vector<string> &annoStrs);
     void close();
     void output();
 };
