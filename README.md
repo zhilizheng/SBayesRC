@@ -3,9 +3,13 @@ This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporat
 
 # Install
 ```
-## Install by devtools
+# Install by devtools
 devtools::install_github("zhilizheng/SBayesRC")
-## package under reformating of the functional related outputs. Headers will be added. 
+
+# If you find difficulties to install from devtools
+# Alternative: install in R by downloading the tar.gz from releases
+install.packages(c("Rcpp", "data.table", "BH",  "RcppArmadillo", "RcppEigen"))
+install.packages("PATH_DOWN_SBayesRC_version.tar.gz", repos=NULL, type="source")
 ```
 
 ## Resources
