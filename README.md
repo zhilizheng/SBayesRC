@@ -14,10 +14,8 @@ install.packages("PATH_DOWNLOAD_SBayesRC_version.tar.gz", repos=NULL, type="sour
 
 ## Resources
 Download the resources and decompress by unzip:
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)). Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1)
-* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download imputed LD same ancestry as your GWAS summary data.
-
-We will provided functions to generate LD from customized genotypes in the future. 
+* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1); binary annotation input as 0 and 1 (in the functional category); continous annotation could be input as its raw value. 
+* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download imputed LD same ancestry as your GWAS summary data. We will integrate functions to generate LD from customized genotypes soon. 
 
 # How to run
 The complete code can be copied from "Example code" section below directly, this section could be skipped.
@@ -61,7 +59,7 @@ Run SBayesRC with or without functional annotation. SBayesRC with functional ann
 
 ```
 # With annotation
-SBayesRC::sbayesrc(mafile, LD_PATH, output_FILE, fileAnnot=annotation_file)
+SBayesRC::sbayesrc(mafile, LD_PATH, output_FILE, fileAnnot=ANNOT_FILE)
 # Alternative: without annotation
 SBayesRC::sbayesrc(mafile, LD_PATH, output_FILE)
 ```
@@ -74,7 +72,7 @@ This is an complete example to run SBayesRC for a GWAS summary data (in bash).
 ```
 ma_file="MA_file"        # GWAS summary data in COJO text format (the only input needed)
 out_prefix="YOUR_OUTPUT_PATH"   # output prefix, e.g. "./test"
-ld_folder="YOUR_PATH"    # LD reference path (download and unzip from Resources section)
+ld_folder="YOUR_LD_PATH"    # LD reference path (download and unzip from Resources section)
 annot="YOUR_ANNOT_FILE"  # Functional annotation (download and unzip from Resources section)
 
 # Tidy
