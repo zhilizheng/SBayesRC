@@ -9,19 +9,20 @@ devtools::install_github("zhilizheng/SBayesRC")
 # If you find difficulties to install from devtools
 # Alternative: install in R by downloading the tar.gz from releases
 install.packages(c("Rcpp", "data.table", "BH",  "RcppArmadillo", "RcppEigen"))
-install.packages("PATH_DOWN_SBayesRC_version.tar.gz", repos=NULL, type="source")
+install.packages("PATH_DOWNLOAD_SBayesRC_version.tar.gz", repos=NULL, type="source")
 ```
 
 ## Resources
 Download the resources and decompress by unzip:
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)). Customized annnotation should be provided in the same format with the first two columns as SNP and Intercept (all 1)
-* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download Imputed LD in the same ancestry as your summary data.
+* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)). Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1)
+* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download imputed LD same ancestry as your GWAS summary data.
 
-We will provided functions to generate LD from customized genotypes soon. 
+We will provided functions to generate LD from customized genotypes in the future. 
 
 # How to run
-## Tidy the summary
-Match the summary data with LD reference and QC.
+The complete code can be copied from "Example code" section below directly, this section could be skipped.
+## Tidy the GWAS summary
+Match the GWAS summary data with LD reference and perform further QC.
 Tidy functions will do those automatically:
 * Check the SNPs with LD reference
 * Check the consistency of alleles (A1, A2)
@@ -35,7 +36,7 @@ SBayesRC::tidy(mafile, LD_PATH, output_FILE)
 
 Parameters:
 
-mafile: the path to summary statitics followed [COJO format](https://yanglab.westlake.edu.cn/software/gcta/#COJO), example:
+mafile: the path to GWAS summary statitics in [COJO format](https://yanglab.westlake.edu.cn/software/gcta/#COJO). The GWAS summary data is the only essential input for SBayesRC in text format, header line is neccessary, example:
 ```
 SNP A1 A2 freq b se p N 
 rs1001 A G 0.8493 0.0024 0.0055 0.6653 129850 
@@ -56,7 +57,7 @@ Parameters are same as above. mafile is the output of the tidy steps.
 
 
 ## SBayesRC
-Run the method with or without functional annotation. SBayesRC with functional annotations is preferred most of the time. 
+Run SBayesRC with or without functional annotation. SBayesRC with functional annotations is preferred most of the time. 
 
 ```
 # With annotation
@@ -68,13 +69,13 @@ SBayesRC::sbayesrc(mafile, LD_PATH, output_FILE)
 fileAnnot is the path to annotation file. Other parameters are same above. 
 
 # Example code
-This is an complete example to run SBayesRC for a summary data (in bash). 
+This is an complete example to run SBayesRC for a GWAS summary data (in bash). 
 
 ```
-ma_file="MA_file"        # summary file path (the only input needed)
-out_prefix="YOUR_PATH"   # output path prefix
-ld_folder="YOUR_PATH"    # LD reference path (download from above)
-annot="YOUR_ANNOT_FILE"  # annotation (download from above)
+ma_file="MA_file"        # GWAS summary data in COJO text format (the only input needed)
+out_prefix="YOUR_OUTPUT_PATH"   # output prefix, e.g. "./test"
+ld_folder="YOUR_PATH"    # LD reference path (download and unzip from Resources section)
+annot="YOUR_ANNOT_FILE"  # Functional annotation (download and unzip from Resources section)
 
 # Tidy
 Rscript -e "SBayesRC::tidy('$ma_file', '$ld_folder', '${out_prefix}_tidy.ma')"
@@ -96,7 +97,7 @@ The outputs are:
 * Proportion of variants' effects in a functional annotation belonging to each of the mixture distributions (${out_prefix}.annoJointProb${comp}):  ${comp} 0 zero effec; 1 small effect; 2 median effect; 3 large effect; 4 very large effect. Each row is an output from MCMC (output per 10 iterations); each column is the functional category indicated in the header line.
 * Documents for other outputs will be provided in the future. 
 
-# Citation
+# Reference
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
 
 # Bug report
