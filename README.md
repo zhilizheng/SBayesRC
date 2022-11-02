@@ -2,11 +2,13 @@
 This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporate functional annotations and allows joint analysis of all common SNPs in the genome. Similar to SBayesR, SBayesRC only requires summary statistics from GWAS (i.e., marginal SNP effect estimates, standard errors, and GWAS sample size) and LD correlations from a reference sample as input data. In addition to joint SNP effect estimates for deriving PGS, SBayesRC also generates the fine mapping Bayesian statistics of posterior inclusion probabilities (PIP) for SNPs as measures of trait associations, and estimates of functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
 # Install
+A valid R is required. The package is tested under Linux and Mac platform on x64 and ARM only.
 ```
-# Install by devtools
+# Install R and devtools
+# Install by devtools in R
 devtools::install_github("zhilizheng/SBayesRC")
 
-# If you find difficulties to install from devtools
+# If you find difficulties to install by devtools
 # Alternative: install in R by downloading the tar.gz from releases
 install.packages(c("Rcpp", "data.table", "BH",  "RcppArmadillo", "RcppEigen"))
 install.packages("PATH_DOWNLOAD_SBayesRC_version.tar.gz", repos=NULL, type="source")
