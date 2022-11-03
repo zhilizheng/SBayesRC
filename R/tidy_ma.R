@@ -1,5 +1,5 @@
 
-#' @title Tidy summary data
+#' @title Tidy GWAS summary data
 #' @usage tidy(ma_path, LD_folder, output)
 #' @param ma_file string, summary data path, COJO format
 #' @param ld_folder string,  path to LD folder
@@ -57,7 +57,7 @@ tidy = function(ma_file, ld_folder, output, freq_thresh=0.2, N_sd_range=3, rate2
 
     bAll = bA1A1 | bA1A2
 
-    message(sum(bAll), " SNPs are consistent between the summary data and LD")
+    message(sum(bAll), " SNPs have consistent alleles (A1, A2) between the summary data and LD")
 
     ma_val2[, FRQ_ref:=snpinfo_val$A1Freq]
     ma_val2[bA1A2, FRQ_ref:=1-FRQ_ref]

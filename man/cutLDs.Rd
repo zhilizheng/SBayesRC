@@ -2,7 +2,7 @@
 % Please edit documentation in R/cutLDs.R
 \name{cutLDs}
 \alias{cutLDs}
-\title{cut the LD to a different variance threshold and save the storage}
+\title{cut the LD to a different variance threshold to save the storage}
 \usage{
 cutLDs(inputDir, outputDir, 0.999)
 }
@@ -17,5 +17,5 @@ cutLDs(inputDir, outputDir, 0.999)
 none, the output is in the output file
 }
 \description{
-cut the LD to a different variance threshold and save the storage
+cut the LD to a different variance threshold to save the storage
 }

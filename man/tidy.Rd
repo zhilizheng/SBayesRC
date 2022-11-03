@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidy_ma.R
 \name{tidy}
 \alias{tidy}
-\title{Tidy summary data}
+\title{Tidy GWAS summary data}
 \usage{
 tidy(ma_path, LD_folder, output)
 }
@@ -21,5 +21,5 @@ tidy(ma_path, LD_folder, output)
 none, the output is in the output file
 }
 \description{
-Tidy summary data
+Tidy GWAS summary data
 }

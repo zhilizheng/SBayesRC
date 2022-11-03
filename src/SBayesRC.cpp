@@ -19,7 +19,7 @@
 #include <map>
 #include <set>
 #include <cmath>
-#include <Rcpp/Benchmark/Timer.h>
+#include "Timer.hpp"
 
 
 SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail){
@@ -109,7 +109,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
 
 
 void SBayesRC::mcmc(){
-    Rcout << "Start " << niter << " iterations..." << endl;
+    Rcout << "Start MCMC with " << niter << " iterations..." << endl;
 
     bool estimatePi = true;
 
@@ -119,9 +119,7 @@ void SBayesRC::mcmc(){
     VectorXf scalee = (nue - 2) / nue * vare.array();
 
     Timer timer;
-    nanotime_t tic = timer.origin();
-
-    tic = timer.now();
+    timer.start("sbrc");
 
     vector<VectorXf> whats;
     for(int i = 0; i < nBlocks; i++){
@@ -249,7 +247,7 @@ void SBayesRC::mcmc(){
                     Rcout << logDelta.transpose() << std::endl;
                     Rcout << "pi" << std::endl;
                     //Rcout << snpPi.row(idx) << std::endl;
-                    stop(" error");
+                    throw(" error");
                 }
 
                 //numSnpDist[delta]++;
@@ -515,7 +513,7 @@ void SBayesRC::mcmc(){
             float m_vare = vare.mean();
             int nnz = n_comp.sum() - n_comp[0];
             if(!((iter+1) % (outFreq * 10))){
-                double t100 = (timer.now() - tic)/1e9;
+                double t100 = timer.elapse("sbrc");
                 //Rprintf("\n iter %i, pi = %6.3f, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f, time = %6.3f\n", iter + 1, pi, nnz, sigmaSq, hsq, m_vare, varg, t100); 
                 //Rprintf("\n iter %i, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f,  varg2 = %6.3f, time = %6.3f\n", iter + 1, nnz, sigmaSq, hsq, m_vare, varg, varg2, t100); 
                 string n_str = "";
@@ -526,10 +524,10 @@ void SBayesRC::mcmc(){
                     string vg_temp1 = vg_temp0.substr(0, vg_temp0.find(".") + 3 + 1);
                     vg_str = vg_str + "vg" + to_string(i+1) + "=" + vg_temp1 + ", ";
                 }
-                Rprintf("\n iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, time = %.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, t100); 
+                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, time = %.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, t100); 
 
                 //Rcout << "ProbDelta Mean: " << probDeltas.mean() << std::endl;
-                tic = timer.now();
+                timer.start("sbrc");
             }
             if(iter >= burn){
                 int curRow = (iter - burn) / outFreq;

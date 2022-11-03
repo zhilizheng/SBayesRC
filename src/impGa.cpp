@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
-#include <Rcpp/Benchmark/Timer.h>
+#include "Timer.hpp"
 
 
 using namespace Rcpp;
@@ -38,7 +38,7 @@ using Eigen::MatrixXf;
 // [[Rcpp::export]]
 NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<Eigen::VectorXi> typedIndex, int m, double cutThresh = 1, double diag_mod = 0.1){
     Timer timer;
-    nanotime_t tic = timer.now();
+    timer.start("imp");
     VectorXf fz = z.cast<float>();
     int n_tt = typedIndex.size();
     if(n_tt != fz.size()){
@@ -117,8 +117,8 @@ NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<E
     }
     fclose(fp);
 
-    Rcout << "Prepare and reading time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "Prepare and reading time: " << timer.elapse("imp") << endl;
+    timer.start("imp");
 
     VectorXf curLambda = lambda.head(set_k);
 
@@ -130,8 +130,8 @@ NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<E
     LD.diagonal().array() += (float)diag_mod;
 
 
-    Rcout << "Reconstruct LD time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "Reconstruct LD time: " << timer.elapse("imp") << endl;
+    timer.start("imp");
 
     MatrixXf LDtt(n_tt, n_tt);
     for(int i = 0; i < n_tt; i++){
@@ -143,8 +143,8 @@ NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<E
     }
 
 
-    Rcout << "Get LDtt time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "Get LDtt time: " << timer.elapse("imp") << endl;
+    timer.start("imp");
 
     vector<int> full_index(m);
     iota(full_index.begin(), full_index.end(), 1);
@@ -162,8 +162,8 @@ NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<E
         }
     }
 
-    Rcout << "Get LDit time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "Get LDit time: " << timer.elapse("imp") << endl;
+    timer.start("imp");
     LD.resize(0, 0);
 
     //LLT<MatrixXf> llt;
@@ -178,14 +178,14 @@ NumericVector impGa(std::string ldm, Eigen::Map<Eigen::VectorXd> z, Eigen::Map<E
 
     fvec LDi_Z = solve(LDtt_mat, fz_vec,  solve_opts::fast + solve_opts::likely_sympd);
 
-    Rcout << "LDi_Z time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "LDi_Z time: " <<  timer.elapse("imp") << endl;
+    timer.start("imp");
 
     VectorXf LDi_Z_eig = Eigen::Map<VectorXf>(LDi_Z.memptr(), n_tt);
 
     VectorXf imp_z = LDit * LDi_Z_eig;
 
-    Rcout << "imp_z time: " << ((timer.now() - tic) / 1e9 ) << endl;
+    Rcout << "imp_z time: " <<  timer.elapse("imp") << endl;
 
     NumericVector imp_z_r(imp_z.data(), imp_z.data() + imp_z.size());
     return(imp_z_r);

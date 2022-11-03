@@ -4,7 +4,7 @@
 #' cut the LD with new thresh
 #' @param ldm string, input ldm
 #' @param outfile string, output file
-#' @cutThresh double, cut threshold
+#' @param cutThresh double, cut threshold
 #' @export
 cutLD <- function(ldm, outfile, cutThresh = 1) {
     .Call(`_SBayesRC_cutLD`, ldm, outfile, cutThresh)

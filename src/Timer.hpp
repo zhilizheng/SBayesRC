@@ -1,4 +1,4 @@
-/* SBayesRC
+/* Timer
  *
  * This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -9,24 +9,22 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#ifndef SBRC_ALTR_H
-#define SBRC_ALTR_H
+#ifndef TIMER_H
+#define TIMER_H
+#include <chrono>
+#include <map>
+#include <string>
 
-#ifdef _OPENMP
-  #include <omp.h>
-#endif
+using std::string;
 
-// use the Rcout in cpp code
-#ifdef _STAND_ALONE_
-#include <iostream>
-#define Rcout std::cout
-#include <cstdio>
-#define Rprintf printf
+class Timer{
+public:
+    void start(string maker);
+    float elapse(string marker);
 
-#else
-#include <RcppEigen.h>
-using namespace Rcpp;
+private:
+    static std::map<string, std::chrono::time_point<std::chrono::steady_clock>> time_map;
 
-#endif
+};
+#endif //TIMMER_H
 
-#endif //SBRC_ALTR_H

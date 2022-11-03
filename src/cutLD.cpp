@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
-#include <Rcpp/Benchmark/Timer.h>
+#include "Timer.hpp"
 
 
 using namespace Rcpp;
@@ -37,12 +37,12 @@ using Eigen::MatrixXf;
 //' cut the LD with new thresh
 //' @param ldm string, input ldm
 //' @param outfile string, output file
-//' @cutThresh double, cut threshold
+//' @param cutThresh double, cut threshold
 //' @export
 // [[Rcpp::export]]
 bool cutLD(std::string ldm, std::string outfile, double cutThresh = 1){
     Timer timer;
-    nanotime_t tic = timer.now();
+    timer.start("cutLD");
 
     FILE *fp = fopen(ldm.c_str(), "rb");
     if(!fp){
@@ -99,8 +99,7 @@ bool cutLD(std::string ldm, std::string outfile, double cutThresh = 1){
     }
     fclose(fp);
 
-    Rcout << "Prepare and reading time: " << ((timer.now() - tic) / 1e9 ) << endl;
-    tic = timer.now();
+    Rcout << "Prepare and reading time: " << timer.elapse("cutLD") << endl;
 
     VectorXf curLambda = lambda.head(set_k);
 

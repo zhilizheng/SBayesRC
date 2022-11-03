@@ -72,10 +72,11 @@ fileAnnot is the path to annotation file. Other parameters are same above.
 This is an complete example to run SBayesRC for a GWAS summary data (in bash). 
 
 ```
-ma_file="MA_file"        # GWAS summary data in COJO text format (the only input needed)
-out_prefix="YOUR_OUTPUT_PATH"   # output prefix, e.g. "./test"
-ld_folder="YOUR_LD_PATH"    # LD reference path (download and unzip from Resources section)
-annot="YOUR_ANNOT_FILE"  # Functional annotation (download and unzip from Resources section)
+ma_file="MA_file"               # GWAS summary data in COJO text format (the only input needed)
+out_prefix="YOUR_OUTPUT_PATH"   # Output prefix, e.g. "./test"
+ld_folder="YOUR_LD_PATH"        # LD reference path (download and unzip from Resources section)
+annot="YOUR_ANNOT_FILE"         # Functional annotation (download and unzip from Resources section)
+export OMP_NUM_THREADS=2        # Number of threads to use for multi-thread  
 
 # Tidy
 Rscript -e "SBayesRC::tidy('$ma_file', '$ld_folder', '${out_prefix}_tidy.ma')"
@@ -93,8 +94,8 @@ The outputs are:
 * SNP weights (${out_prefix}_sbrc.txt).  First 3 columns are for PGS calculation (SNP: SNP id; A1: effect allele; BETA: joint effect on 0/1/2 genotype scale), it can be the input for other tools directly (e.g. PLINK). Other columns:  PIP: posterior inclusion probability of the variant to be causal from MCMC iterations after burn-in; BETAlast: joint effect obtained in last iteration on 0/1/2 scale.
 * Running logs(${out_prefix}_sbrc.log): the estimated runtime is included; provide the logs if you would like to report a problem.  
 * Parameter estimation (${out_prefix}_sbrc.par): parameter estimations for heritablity (hsq) and number of non-zero effect variants (nnz). Details (${out_prefix}_sbrc.rds) could be loaded by R readRDS, it's a list with names indicates the variables estimated.
-* Functional per-SNP heritability enrichments (${out_prefix}.vg.enrich.qt):  Heritability enrichment for each annotation in the MCMC iterations after burn-in. Each row is an output of enrichment (output per 10 iterations); each column is the enrichment indicated in the header line.
-* Proportion of variants' effects in a functional annotation belonging to each of the mixture distributions (${out_prefix}.annoJointProb${comp}):  ${comp} 0 zero effec; 1 small effect; 2 median effect; 3 large effect; 4 very large effect. Each row is an output from MCMC (output per 10 iterations); each column is the functional category indicated in the header line.
+* Functional per-SNP heritability enrichments (${out_prefix}_sbrc.hsq.enrich): per-SNP heritability enrichment for each annotation. MCMC details (${out_prefix}_sbrc.vg.enrich.qt), each row is an output of enrichment from one MCMC iteration (output per 10 iterations); each column is the enrichment specified in the header line.
+* Proportion of variants' effects in a functional annotation belonging to each of the mixture distributions (${out_prefix}_sbrc.annoJointProb):  component 0 zero effec; 1 small effect; 2 median effect; 3 large effect; 4 very large effect.  MCMC details (${out_prefix}_sbrc.annoJointProb$comp), each row is an output from MCMC iteration (output per 10 iterations); each column is the functional category specified in the header line.
 * Documents for other outputs will be provided in the future. 
 
 # Reference

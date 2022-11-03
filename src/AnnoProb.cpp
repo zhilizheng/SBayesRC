@@ -106,7 +106,7 @@ void AnnoProb::open(string prefix, const vector<string> &annoStrs){
 }
 
 void AnnoProb::writeHeader(const vector<string> &annoStrs){
-    string delim = "\t";
+    string delim = " ";
     string header = boost::algorithm::join(annoStrs, delim);
 
     outs["vg_tot_annot"] << header << std::endl;

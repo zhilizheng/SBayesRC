@@ -1,8 +1,8 @@
 Package: SBayesRC
 Type: Package
 Title: Run SBayesRC eigen
-Version: 0.1.2
-Date: 2022-10-17
+Version: 0.1.3
+Date: 2022-11-03
 Description: SBayesRC eigen
 Authors@R: c(
   person("Zhili","Zheng", role=c("aut","cre"), email="zhilizheng@outlook.com"),
@@ -13,7 +13,7 @@ Imports:
     Rcpp,
     data.table
 LinkingTo: Rcpp, BH, RcppArmadillo, RcppEigen
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.0
 Depends:
     R (>= 2.15),
     methods,
@@ -25,3 +25,4 @@ Suggests:
 VignetteBuilder: knitr
 NeedsCompilation: yes
 ByteCompile: TRUE
+Encoding: UTF-8

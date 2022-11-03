@@ -10,6 +10,8 @@ cutLD(ldm, outfile, cutThresh = 1)
 \item{ldm}{string, input ldm}
 
 \item{outfile}{string, output file}
+
+\item{cutThresh}{double, cut threshold}
 }
 \description{
 cut the LD with new thresh

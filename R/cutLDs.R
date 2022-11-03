@@ -1,5 +1,5 @@
 
-#' @title cut the LD to a different variance threshold and save the storage
+#' @title cut the LD to a different variance threshold to save the storage
 #' @usage cutLDs(inputDir, outputDir, 0.999)
 #' @param inputDir string, LD path for input
 #' @param outputDir string, LD path for output

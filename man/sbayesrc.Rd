@@ -13,9 +13,21 @@ sbayesrc(ma_path, LD_folder, file_out)
 
 \item{file_out}{string, output path}
 
-\item{thresh}{numerber, eigen cutoff for LD}
+\item{thresh}{number, eigen cutoff for LD}
+
+\item{niter}{number, total number of MCMC iterations}
+
+\item{burn}{number, numbmer of MCMC burn-in iterations}
 
 \item{fileAnnot}{sring, annotation file path}
+
+\item{nComp}{number, number of mixture component}
+
+\item{starth2}{number, start heritability}
+
+\item{startPi}{vector, start proportion of causal in each component}
+
+\item{gamma}{vector, gamma of each componnet}
 }
 \value{
 none, output to the file_out
