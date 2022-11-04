@@ -80,6 +80,7 @@ export OMP_NUM_THREADS=2        # Number of threads to use for multi-thread
 
 # Tidy
 Rscript -e "SBayesRC::tidy('$ma_file', '$ld_folder', '${out_prefix}_tidy.ma')"
+# Best practice: read the log from this step. If large portion of SNPs were tidied out, it could prompt some problems in your GWAS summary data.  
 
 # Impute
 Rscript -e "SBayesRC::impute('${out_prefix}_tidy.ma', '$ld_folder', '${out_prefix}_imp.ma')"
@@ -100,9 +101,7 @@ The outputs are:
 
 # Resource consumption
 The runtime for 7M SNPs: about 9.5 hours with 4 CPU cores and 76GB of memory. 
-
 The runtime for 1M SNPs: about 1.2 hours with 4 CPU cores and 8GB of memory.
-
 We are optimising the codes, the runtime could be shorter in the future.
 
 # Reference
