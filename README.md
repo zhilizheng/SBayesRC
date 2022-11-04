@@ -2,7 +2,7 @@
 This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporate functional annotations and allows joint analysis of all common SNPs in the genome. Similar to SBayesR, SBayesRC only requires summary statistics from GWAS (i.e., marginal SNP effect estimates, standard errors, and GWAS sample size) and LD correlations from a reference sample as input data. In addition to joint SNP effect estimates for deriving PGS, SBayesRC also generates the fine mapping Bayesian statistics of posterior inclusion probabilities (PIP) for SNPs as measures of trait associations, and estimates of functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
 # Install
-A valid R is required. The package is tested under Linux and Mac platform on x64 and ARM only.
+A valid R is required. The package is tested under Linux and macOS (x86_64 and ARM) platform only due to availability. 
 ```
 # Install R and devtools
 # Install by devtools in R
@@ -17,7 +17,7 @@ install.packages("PATH_DOWNLOAD_SBayesRC_version.tar.gz", repos=NULL, type="sour
 ## Resources
 Download the resources and decompress by unzip:
 * [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing) (unzip to ANNOT_FILE): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1); binary annotation input as 0 and 1 (in the functional category); continous annotation could be input as its raw value. 
-* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download imputed LD same ancestry as your GWAS summary data. We will integrate functions to generate LD from customized genotypes soon. 
+* LD refernce (unzip to LD_PATH): [UKB Imputed](https://drive.google.com/drive/folders/1ZTYv_qlbb1EO70VVSSQFaEP9zH7c9KHt?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/1YTnw1cY-TZfAnLjuwF6wsVHdM4DOXA_G?usp=sharing). We suggest to download imputed LD same ancestry as your GWAS summary data. We will integrate functions to generate LD from customized genotypes soon. Note: The LD data we provided is in little endian format which is most widely supported by hardwares. 
 
 # How to run
 The complete code can be copied from "Example code" section below directly, this section could be skipped.
@@ -97,6 +97,13 @@ The outputs are:
 * Functional per-SNP heritability enrichments (${out_prefix}_sbrc.hsq.enrich): per-SNP heritability enrichment for each annotation. MCMC details (${out_prefix}_sbrc.vg.enrich.qt), each row is an output of enrichment from one MCMC iteration (output per 10 iterations); each column is the enrichment specified in the header line.
 * Proportion of variants' effects in a functional annotation belonging to each of the mixture distributions (${out_prefix}_sbrc.annoJointProb):  component 0 zero effec; 1 small effect; 2 median effect; 3 large effect; 4 very large effect.  MCMC details (${out_prefix}_sbrc.annoJointProb$comp), each row is an output from MCMC iteration (output per 10 iterations); each column is the functional category specified in the header line.
 * Documents for other outputs will be provided in the future. 
+
+# Resource consumption
+The runtime for 7M SNPs: about 9.5 hours with 4 CPU cores and 76GB of memory. 
+
+The runtime for 1M SNPs: about 1.2 hours with 4 CPU cores and 8GB of memory.
+
+We are optimising the codes, the runtime could be shorter in the future.
 
 # Reference
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
