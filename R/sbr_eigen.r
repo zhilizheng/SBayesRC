@@ -259,7 +259,8 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
        # per-SNP heritability
        curDT = fread(paste0(outfile, ".vg.enrich.qt"), sep=" ")
        curMean = colMeans(curDT)
-       outDT = data.table(Annotation = names(curMean), Enrich = curMean)
+       curSD = sapply(curDT, sd)
+       outDT = data.table(Annotation = names(curMean), Enrich = curMean, SD = curSD)
        fwrite(outDT, file=paste0(outfile, ".hsq.enrich"), sep="\t")
 
        # comp pi
