@@ -189,7 +189,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
     annoMat = matrix(0, ncol=0, nrow=0)
     numAnno = 0
-    annoStrings = colnames(annoMat)
+    annoStrings = c("")
     tempFileAnnot = paste0(outfile, ".annot.tmp.bin")
     if(bAnnot){
         anno = fread(fileAnnot, head=TRUE)

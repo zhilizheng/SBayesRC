@@ -4,9 +4,9 @@
 \name{SBayesRC-package}
 \alias{SBayesRC}
 \alias{SBayesRC-package}
-\title{SBayesRC: Run SBayesRC eigen}
+\title{SBayesRC: Run SBayesRC}
 \description{
-SBayesRC eigen
+SBayesRC
 }
 \author{
 \strong{Maintainer}: Zhili Zheng \email{zhilizheng@outlook.com}

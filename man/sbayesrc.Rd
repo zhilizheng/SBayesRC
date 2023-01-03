@@ -21,8 +21,6 @@ sbayesrc(ma_path, LD_folder, file_out)
 
 \item{fileAnnot}{sring, annotation file path}
 
-\item{nComp}{number, number of mixture component}
-
 \item{starth2}{number, start heritability}
 
 \item{startPi}{vector, start proportion of causal in each component}
