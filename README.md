@@ -5,6 +5,7 @@ This is the R implementation of SBayesRC. SBayesRC extends SBayesR to incorporat
 A valid R is required. The package is tested under Linux and macOS (x86_64 and ARM) platform only due to availability. 
 ```
 # Install R and devtools
+# We suggest to install BLAS packages for performance, e.g. openBlas or MKL.
 # Install by devtools in R
 devtools::install_github("zhilizheng/SBayesRC")
 
