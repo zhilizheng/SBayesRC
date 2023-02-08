@@ -1,0 +1,12 @@
+EIGEN = $(EIGEN3_INCLUDE_DIR)
+BOOST = $(BOOST_LIB)
+
+CXXFLAGS = -fopenmp -w -O3 -m64 -DEIGEN_NO_DEBUG -D_STAND_ALONE_ -msse2 -std=c++0x -I. -I $(EIGEN) -I $(BOOST)
+
+libsbayesrc.a: AnnoProb.o BlockLDeig.o dist.o SBayesRC.o Timer.o
+	ar rcu $@ $+
+	ranlib $@
+
+clean:
+	rm *.o
+	rm *.a

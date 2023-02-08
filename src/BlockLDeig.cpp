@@ -11,6 +11,9 @@
 
 #include "commR.hpp"
 #include <iostream>
+#include <sstream>
+#include <iterator>
+#include <fstream>
 #include "BlockLDeig.hpp"
 
 using std::to_string;

@@ -28,7 +28,13 @@ impute = function(mafile, LD_folder, output, thresh=0.995){
 
 
     snpinfo = fread(paste0(LD_folder, "/snp.info"), head=TRUE)
-    setnames(snpinfo, c("CHR", "SNP", "GD", "BP", "A1", "A2", "freq", "N", "blk"))
+    if(ncol(snpinfo) == 9){
+        setnames(snpinfo, c("CHR", "SNP", "GD", "BP", "A1", "A2", "freq", "N", "blk"))
+    }else if(ncol(snpinfo) == 8){
+        setnames(snpinfo, c("CHR", "SNP", "BP", "A1", "A2", "freq", "N", "blk"))
+    }else{
+        stop("the LD information looks odd")
+    }
     snpfinal = snpinfo[, .(SNP, A1, A2, freq, blk)]
 
     comSNP = intersect(ma$SNP, snpfinal$SNP)
