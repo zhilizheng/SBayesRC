@@ -1,8 +1,8 @@
 Package: SBayesRC
 Type: Package
 Title: Run SBayesRC
-Version: 0.1.4
-Date: 2023-01-02
+Version: 0.1.5
+Date: 2023-02-22
 Description: SBayesRC
 Authors@R: c(
   person("Zhili","Zheng", role=c("aut","cre"), email="zhilizheng@outlook.com"),

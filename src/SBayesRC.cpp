@@ -22,7 +22,7 @@
 #include "Timer.hpp"
 
 
-SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail){
+SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS){
 
     this->niter = niter;
     this->burn = burn;
@@ -35,6 +35,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     this->outPrefix = outPrefix;
     this->curSamVe = samVe;
     this->fgamma = fgamma;
+    this->outFreq = outFreq;
 
     int nMarker = fbhat.size();
     ndist = fgamma.size();  // number of mixture distribution components
@@ -52,7 +53,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
 
     if(bAnnot){
         snpPi.resize(nMarker, ndist);
-        anno = new AnnoProb(fileAnnot, numAnno, pi, snpPi, bOutDetail);
+        anno = new AnnoProb(fileAnnot, numAnno, pi, snpPi, bOutDetail, initAnnoSS);
         if(!outPrefix.empty()) anno->open(outPrefix, annoStrs);
     }
     //annoMat.resize(0, 0);
@@ -560,6 +561,7 @@ void SBayesRC::mcmc(){
     //NumericVector mean_par = as<NumericVector>(wrap((sum(iter_infos, 0) / iter_infos.n_rows).as_col()));
    // clean
    if(anno){
+       annoSS = anno->getSigmaSq();
        if(!outPrefix.empty())anno->close();
        delete anno;
    }
@@ -615,3 +617,6 @@ MatrixXd SBayesRC::get_hsq_infos(){
     return hsq_infos;
 }
 
+VectorXd SBayesRC::get_anno_ss(){
+    return annoSS;
+}

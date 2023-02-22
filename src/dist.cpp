@@ -30,7 +30,7 @@ namespace InvChiSq{
     typedef boost::mt19937 random_engine;
     typedef boost::gamma_distribution<> gamma_distribution;
     typedef boost::variate_generator<random_engine&, gamma_distribution> gamma_generator;
-    static random_engine engine;
+    static thread_local random_engine engine;
     float sample(const float df, const float scale){
         gamma_generator sgamma(engine, gamma_distribution(0.5f*df, 1));
         return scale/(2.0f*sgamma());
@@ -44,8 +44,8 @@ namespace Bernoulli{
     //static random_engine engine;
     //static uniform01_generator ranf(engine, uniform_01());
 
-    static std::mt19937_64 rng;
-    static std::uniform_real_distribution<float> unif(0, 1);
+    static thread_local std::mt19937_64 rng;
+    static thread_local std::uniform_real_distribution<float> unif(0, 1);
 
     int sample(const VectorXf &p){
         float cum = 0;
@@ -68,7 +68,7 @@ namespace Gamma{
     typedef boost::mt19937 random_engine;
     typedef boost::gamma_distribution<> gamma_distribution;
     typedef boost::variate_generator<random_engine&, gamma_distribution> gamma_generator;
-    static random_engine engine;
+    static thread_local random_engine engine;
     float sample(const float shape, const float scale){
         gamma_generator sgamma(engine, gamma_distribution(shape, scale));
         return sgamma();
@@ -90,13 +90,13 @@ namespace Dirichlet{
 
 namespace Normal{
     typedef boost::mt19937 random_engine;
-    static random_engine engine;
+    static thread_local random_engine engine;
     typedef boost::uniform_01<> uniform_01;
     typedef boost::normal_distribution<> normal_distribution;
     typedef boost::variate_generator<random_engine&, uniform_01> uniform01_generator;
     typedef boost::variate_generator<random_engine&, normal_distribution> normal_generator;
-    static uniform01_generator ranf(engine, uniform_01());
-    static normal_generator snorm(engine, normal_distribution(0,1));  // standard normal
+    static thread_local uniform01_generator ranf(engine, uniform_01());
+    static thread_local normal_generator snorm(engine, normal_distribution(0,1));  // standard normal
 
     boost::math::normal_distribution <> d = boost::math::normal_distribution <> (0 ,1);
     double quantile_01(double value){

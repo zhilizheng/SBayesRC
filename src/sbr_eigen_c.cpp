@@ -30,7 +30,7 @@ using Eigen::MatrixXd;
 
 
 // [[Rcpp::export]]
-List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false){
+List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0){
 
     string curSamVe = samVe;
     VectorXf fbhat = bhat.cast<float>();
@@ -43,7 +43,7 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
         annoStrings[i] = annoStrs[i];
     }
 
-    SBayesRC sbr(niter, burn, fbhat, numAnno, annoStrings, mldmDir, vary, n, fgamma, pi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail);
+    SBayesRC sbr(niter, burn, fbhat, numAnno, annoStrings, mldmDir, vary, n, fgamma, pi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS);
     sbr.mcmc();
 
     // return 
@@ -74,6 +74,8 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
     MatrixXf pip = sbr.get_pip();
     NumericMatrix pip_r(pip.rows(), pip.cols(), pip.data());
     //NumericVector weightQ_r(weightQ.data(), weightQ.data() + weightQ.size());
+    Eigen::VectorXd sigmaAnno = sbr.get_anno_ss();
+    NumericVector sigmaAnno_r(sigmaAnno.data(), sigmaAnno.data() + sigmaAnno.size());
  
     return(List::create(_["par"]=mean_par, 
                 _["betaMean"] = betaMean, 
@@ -86,6 +88,7 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
                 _["hsq_block_hist"] = sbr.get_hsq_infos(),
                 _["pip"] = pip_r,
                 _["vg_comp_hist"] = vg_comp_mcmc_r,
-                _["n_comp_hist"] = n_comp_mcmc_r
+                _["n_comp_hist"] = n_comp_mcmc_r,
+                _["sigma_anno"] = sigmaAnno_r
                 )); 
 }

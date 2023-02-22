@@ -70,7 +70,7 @@ class AnnoProb {
     void writeHeader(const vector<string> &annoStrs);
 
    public:
-    AnnoProb(string fileAnnot, int numAnno,  const VectorXf &Pi, MatrixXf &snpPi, bool bOutDetail);
+    AnnoProb(string fileAnnot, int numAnno,  const VectorXf &Pi, MatrixXf &snpPi, bool bOutDetail, double initSS=1);
     void samplePi(const MatrixXf &z, MatrixXf &snpPi);
     void computeEnrichBin(const MatrixXf &vg_snp_comp, float vp);
     void computeEnrichQt(const VectorXf &vg_snp, float vg);
@@ -82,6 +82,7 @@ class AnnoProb {
     void open(string prefix, const vector<string> &annoStrs);
     void close();
     void output();
+    VectorXd getSigmaSq();
 };
 
 #endif //SBRC_ANNO_PROB_H

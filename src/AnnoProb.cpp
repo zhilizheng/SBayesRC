@@ -149,7 +149,7 @@ void AnnoProb::close(){
 void AnnoProb::annoSigmaSS_sample() {
     // init sigmaSS: SetOnes(ssq.size());
     const int df = 4;
-    const int scale = 1;
+    const int scale = 1; // changed from 1
 
     float dfTilde = df + (numAnno - 1);  // exclude the intercept
     VectorXf scaleTilde = ssq.array() + df * scale;
@@ -218,6 +218,7 @@ void AnnoProb::annoEffect_sample_Gibbs(const MatrixXf &z) {
 
             // sample latent variables
             // # pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for
             for (int j = 0; j < numDP; ++j) {
                 if (zi[j])
                     y[j] = TruncatedNormal::sample_lower_truncated(mean[j], 1.0, 0.0);
@@ -301,7 +302,11 @@ void AnnoProb::computePiFromP(const MatrixXf &snpP, MatrixXf &snpPi) {
     }
 }
 
-AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &snpPi, bool bOutDetail) {
+VectorXd AnnoProb::getSigmaSq(){
+    return sigmaSq.cast<double>();
+}
+
+AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &snpPi, bool bOutDetail, double initSS) {
     this->bOutDetail = bOutDetail;
 
     numDist = Pi.size();
@@ -352,7 +357,7 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
     XPXiSD.resize(numAnno);
     XPXqiSD.resize(numAnno);
 
-    #pragma omp parellel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic)
     for(int i = 0; i < numAnno; i++){
         float XPX = annoMat.col(i).dot(annoMat.col(i));
         if(XPX < 1e-6){
@@ -394,7 +399,15 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
     initP_Pi_annoAlpha(Pi, snpPi);
 
     // init sigmaSS
-    sigmaSq = VectorXf::Ones(numComp);
+    //sigmaSq = VectorXf::Ones(numComp).array() * (float) initSS;
+    //sigmaSq = VectorXf::LinSpaced(numComp, 0.1, 1.0) * (float) initSS;
+    sigmaSq = VectorXf::Ones(numComp) * (float)initSS;
+    /*
+    for(int i = 1; i < numComp; i++){
+        sigmaSq[i] = sigmaSq[i-1]*2;
+    }
+    if(sigmaSq[numComp-1] < 1.0) sigmaSq[numComp-1] = 1.0;
+    */
 
     //init ssq
     ssq.resize(numComp);

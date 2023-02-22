@@ -24,7 +24,7 @@ using Eigen::MatrixXf;
 class SBayesRC{
 
 public:
-    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false);
+    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
     void mcmc();
     VectorXd get_mean_par_vec();
     VectorXf get_betaMean_vec();
@@ -38,6 +38,8 @@ public:
     MatrixXd get_vare_infos();
     MatrixXd get_hsq_infos();
     MatrixXd get_ssq_infos();
+    VectorXd get_anno_ss();
+    void setOutFreq();
 
 private:
     int ndist;  // number of mixture distribution components
@@ -57,6 +59,7 @@ private:
     double resam_thresh;
     VectorXf n;
     AnnoProb * anno = NULL; // annoation
+    VectorXd annoSS;
     BlockLDeig blockLDeig; // block LD eigen
 
 

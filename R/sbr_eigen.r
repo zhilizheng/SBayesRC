@@ -21,7 +21,7 @@
 sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000, burn=1000, fileAnnot="", 
                     method="sbr_ori", sSamVe="allMixVe", twopq="nbsq",
                     bOutDetail=FALSE, resam_thresh=1.1, 
-                    starth2=0.5, startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), gamma=c(0, 0.001, 0.01, 0.1, 1), seed=22){
+                    starth2=0.5, startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), gamma=c(0, 0.001, 0.01, 0.1, 1), seed=22, outFreq=10, annoSigmaScale=1.0){
     cSamVe = "fixVe"
     if(sSamVe == "noReSamVe"){
         cSamVe = "fixVe"
@@ -78,7 +78,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
     if(file.exists(paste0(outfile, ".txt"))){
         message("Don't need to run: ", outfile, " exists")
-        quit()
+        return;
     }
 
     if(submethod == "sbc"){
@@ -237,7 +237,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale)
         saveRDS(res, file=outRes)
     }
 
