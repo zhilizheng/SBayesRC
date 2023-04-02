@@ -11,7 +11,8 @@
 #' @param starth2 number, start heritability
 #' @param startPi vector, start proportion of causal in each component 
 #' @param gamma vector, gamma of each componnet
-#' @return none, output to the file_out
+#' @param bTune bool, perform tuning or not
+#' @return none, outputs are all redirected the file_out
 #' @examples
 #' # run SBayesRC without annotation
 #' sbayesrc(ma_path, LD_folder, file_out)
@@ -21,7 +22,7 @@
 sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000, burn=1000, fileAnnot="", 
                     method="sbr_ori", sSamVe="allMixVe", twopq="nbsq",
                     bOutDetail=FALSE, resam_thresh=1.1, 
-                    starth2=0.5, startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), gamma=c(0, 0.001, 0.01, 0.1, 1), seed=22, outFreq=10, annoSigmaScale=1.0){
+                    starth2=0.5, startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), gamma=c(0, 0.001, 0.01, 0.1, 1), bTune=TRUE, tuneIter=150, tuneBurn=100, tuneStep=c(0.995, 0.99, 0.95, 0.9), bTunePrior=FALSE, seed=22, outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE){
     cSamVe = "fixVe"
     if(sSamVe == "noReSamVe"){
         cSamVe = "fixVe"
@@ -128,7 +129,8 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     mafile = file_summary
     ma = fread(mafile)
 
-    info = fread(paste0(ld_folder, "/snp.info"))
+    info = fread(file.path(ld_folder, "snp.info"))
+    m = nrow(info)
 
     # correct order
     idx = match(info$ID, ma$SNP)
@@ -229,15 +231,97 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
     }
 
+    if(bTune){
+        cRand = file(file.path(ld_folder, "rand.bin"), "rb")
+        randIdx = sample(1:50, 1)
+        seek(cRand, where=(randIdx-1) * m * 4)
+
+        ma_ord$bt_add = readBin(cRand, numeric(), size=4, m)
+
+        ma_ord[, n_train:=round(N*0.9)]
+        ma_ord[, n_val:=N - n_train]
+        ma_ord[, factor := sqrt(1/n_train - 1/N)]
+
+        ma_ord[, bhat_t := bhat + factor * bt_add]
+        ma_ord[, bhat_v := (bhat * N - bhat_t * n_train) / n_val]
+
+        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat_t, bhat_v)], file=paste0(outfile, "_tune_inter.txt"), sep="\t", na="NA", quote=F)
+
+        dt.n = ma_ord[, list(N=mean(N)), by=blk][order(blk)]
+        n_train = as.numeric(dt.n$N)
+
+        bhat_t = ma_ord$bhat_t
+        bhat_v = ma_ord$bhat_v
+        message("Generated pseudo-summary ", randIdx)
+    }
+
     rm(ma, ma_ord, info, bA1A1, bA2A2, bA1A2, bA2A1)
     gc()
 
+    if(bTune){
+        message("********************************")
+        message("Perform tuning...")
+        dt.tune = data.table()
+        for(tune_thresh in tuneStep){
+            curFile = paste0(outfile, "_tune", tune_thresh)
+            message("--------------------------------")
+            message("Tune with parameter ", tune_thresh)
+            res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+            saveRDS(res, file=paste0(curFile, ".rds"))
+
+            dt.tune = rbind(dt.tune, data.table(thresh=tune_thresh, r=(t(res$betaMean) %*% bhat_v)[1] / sqrt(sum(res$betaMean^2))))
+            rm(res)
+            gc()
+        }
+
+        dt.tune$rel_r = abs(dt.tune$r / dt.tune[thresh=="0.995"]$r)
+        fwrite(dt.tune, file=paste0(outfile, "_tune.txt"), sep="\t", quote=F, na="NA")
+
+        message("Tuning Done")
+        if(all(dt.tune$r < 0)){
+            stop("All correlations are negative, this may indicate errors in summary data. \nPlease perform QC on summary data.\nYou can still run without tuning by passing bTune=FALSE and set a proper threshold by thresh={value among 0~1}")
+        }
+
+        thresh = max(tuneStep)
+
+        dt.tune.pos = dt.tune[r > 0]
+        rel_max = max(dt.tune.pos$rel_r)
+        dt.max = dt.tune[rel_r == rel_max]
+        max_thresh =  dt.max$thresh
+        if(rel_max > 1.25){
+            thresh = max_thresh
+        }else{
+            if(max_thresh != max(tuneStep) & dt.tune[thresh==max(tuneStep)]$r < 0){
+                thresh = max_thresh
+            }
+        }
+
+        if(thresh == min(tuneStep)){
+            stop("Warning, the best parameter is the minimumn threshold, we suggest to expand the tuning grid by specify lower tuning value, e.g. tuneStep=c(0.995, 0.9, 0.8, 0.7, 0.6)")
+        }
+
+        message("Continue with best parameter: ", thresh)
+        if(bTunePrior){
+            dt = readRDS(paste0(outfile, "_tune", thresh, ".rds"))
+            startPi = dt$pi_hist[nrow(dt$pi_hist), ]
+            starth2 = tail(dt$hsq_hist, 1)
+            rm(dt)
+        }
+
+        runtime = proc.time()
+        message("Time elapsed:", runtime["elapsed"], " seconds")
+        message("********************************")
+        rm(bhat_t, bhat_v, dt.tune )
+        gc()
+    }
+
+    message("SBayesRC with eigen cutoff ", thresh)
     outRes = paste0(outfile, ".rds")
     if(file.exists(outRes)){
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
         saveRDS(res, file=outRes)
     }
 
@@ -276,6 +360,6 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
    }
 
     message("SBayesRC run successfully!")
-    message("Time elapsed:")
-    print(proc.time())
+    runtime = proc.time()
+    message("Time elapsed:", runtime["elapsed"], " seconds")
 }

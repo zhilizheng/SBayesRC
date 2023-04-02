@@ -104,10 +104,11 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     ssq_infos.resize((niter - burn)/outFreq, nBlocks);
     hsq_infos.resize((niter - burn)/outFreq, nBlocks);
     pip_count = MatrixXf::Zero(m, ndist);
-
-
 }
 
+void SBayesRC::setOutBeta(bool bOut){
+    this->bOutBeta = bOut;
+}
 
 void SBayesRC::mcmc(){
     Rcout << "Start MCMC with " << niter << " iterations..." << endl;
@@ -135,6 +136,7 @@ void SBayesRC::mcmc(){
     VectorXf n_comp(ndist);
     VectorXf Ve_param(nBlocks);
 
+    
     for(int iter = 0; iter < niter; iter++){
         //Rcout << "------------------------------------" << std::endl;
         //Rcout << "iterStart " << iter << std::endl;
@@ -225,39 +227,10 @@ void SBayesRC::mcmc(){
                     }
                     */
                 }
-                //Rcout << "debug 0" << std::endl;
-                int delta = 0;
-                try{
-                    //# pragma omp critial
-                    //{
-                        delta = Bernoulli::sample(probDelta);
-                    //}
-                    //Rcout << "d2" << std::endl;
-                    /*
-                    if(delta > ndist - 1){
-                        Rcout << "Too large delta: " << delta << std::endl;
-                    }
-                    */
-                    //delta = 0;
-                    //probDeltas[idx] = probDelta.sum();
-                }catch(...){
-                    Rcout << "iter: " << iter << ", idx: " << idx << std::endl;
-                    Rcout << "Error probDelta:" << std::endl;
-                    Rcout << probDelta << std::endl;
-                    Rcout << "logDelta:" << std::endl;
-                    Rcout << logDelta.transpose() << std::endl;
-                    Rcout << "pi" << std::endl;
-                    //Rcout << snpPi.row(idx) << std::endl;
-                    throw(" error");
-                }
+                int delta = Bernoulli::sample(probDelta);
 
                 //numSnpDist[delta]++;
                 cur_causal(idx, delta) = 1;
-
-
-                //Rcout << "probDelta1: " << probDelta1 << ", rhs: " << rhs << ", uhat: " << uhat << endl;
-                //Rcout << curR.submat(0, 0, 5, 5) << endl;
-                //Rcout <<  "vareDn: " << vareDn << ", invLhs: " <<  invLhs <<  ", logInvLhsMsigma: " <<  logInvLhsMsigma << ", sqrtInvLhs" << sqrtInvLhs << endl;
 
                 //stop("check output");
                 float adj_wcorr = 0;
@@ -288,62 +261,9 @@ void SBayesRC::mcmc(){
                 if(adj_wcorr != 0){
                     wcorr = wcorr + curQi * adj_wcorr;
                 }
-                /* // for double block
-                   if(adj_wcorr != 0 || bReviseWhat){
-                   wcorr = wcorr + curQi * adj_wcorr;
-                //Rcout << "b" << idxBlk << ", " << idx << " SNP, beta:" << beta[idx] << ", adj_wcorr:" << adj_wcorr << ".";
-                bool revised_single = false;
-                int idxBlkPre = idxBlkPres[idxBlk];
-                if(idxBlkPre >= 0){
-                int idxCur = idx - startPos[idxBlkPre];
-                MatrixXf &exQ = Q[idxBlkPre];
-                if(idxCur < exQ.cols()){
-                w[idxBlkPre] = w[idxBlkPre] + exQ.col(idxCur) * adj_wcorr;
-                //Rcout << " Pre b:" << idxBlkPre << ", idx:" << idxCur;
-                if(bReviseWhat) whats[idxBlkPre] = whats[idxBlkPre] + exQ.col(idxCur) * beta[idx];
-                }
-                }else{
-                if((idxBlk == (nBlocks - 1) || idx < startPos[idxBlk+1]) && bReviseWhat){
-                single_whats[idxBlk] = single_whats[idxBlk] + curQi * beta[idx];
-                revised_single = true;
-                }
-                }
+           }
 
-                int idxBlkAfter = idxBlkAfters[idxBlk];
-                if(idxBlkAfter > 0){
-                int idxCur = idx - startPos[idxBlkAfter];
-                MatrixXf &exQ = Q[idxBlkAfter];
-                if(idxCur >= 0){
-                w[idxBlkAfter] = w[idxBlkAfter] + exQ.col(idxCur) * adj_wcorr;
-                if(bReviseWhat) whats[idxBlkAfter] = whats[idxBlkAfter] + exQ.col(idxCur) * beta[idx];
-                //Rcout << " Pst b:" << idxBlkAfter << ", idx:" << idxCur;
-                }
-                }else{
-                if((!revised_single) && idx > endPos[idxBlk-1] && bReviseWhat){
-                single_whats[idxBlk] = single_whats[idxBlk] + curQi * beta[idx];
-                }
-                }
-                //Rcout << std::endl;
-                }
-                */
-            }
-
-
-            //Rcout << "    finish 1 block: " << (timer.now() - tic)/1e9 << std::endl;
-
-            //nnz = nnz + curNnz;
-            //varg = varg + curVarg;
-            //Rcout << "BlockVg " << idxBlk << ": " << curVarg << std::endl;
-
-            //Rcout << "beta sum: " << sum(beta.subvec(startM, endM)) << ", bhat sum: " << sum(fbhat.subvec(startM, endM)) << ", bhatcorr sum: " << sum(bhatcorr.subvec(startM, endM)) << endl;
-            //Rcout << "Iter " << iter << ", blk: " << idxBlk << ", startM:" << startM << ", endM: " << endM << ", bRb: " << bRb << ", sse: " << sse << ", varg: " << varg << ", vare: " << vare[idxBlk] << endl;
-            //stop("check output");
-        }
-        //Rcout << "iter " << iter << " =======================" << std::endl;
-
-        //Rcout << "  finish all block: " << (timer.now() - tic)/1e9 << std::endl;
-        // update wcorr
-        //Rcout << "  iter: " << iter <<  ", DEBUG Sample Ve" << std::endl; 
+       }
 
         VectorXf Vg_block(nBlocks);
         #pragma omp parallel for schedule(dynamic)
@@ -352,12 +272,14 @@ void SBayesRC::mcmc(){
             Vg_block[idxBlk] = curVarg;
         }
 
-        //Rcout << "  finish Ve: " << (timer.now() - tic)/1e9 << std::endl;
-        //beta_mcmc.col(iter) = beta;
-        //Rcout << "  iter: " << iter <<  ", DEBUG pip" << std::endl; 
         if(iter >= burn) {
             betasum = betasum + beta;
             pip_count = pip_count + cur_causal;
+            if(bOutBeta){
+                ofstream outs((outPrefix + ".beta" + to_string(iter+1) + ".txt").c_str());
+                outs << beta << std::endl;
+                outs.close();
+            }
         }
 
         //if(estimateSigmaSq) sigmaSq = (dot(beta, beta) + nub*scaleb)/rchisq(1, nnz+nub)[0];
@@ -577,6 +499,15 @@ VectorXf SBayesRC::get_betaMean_vec(){
     return betasum.array() / (niter - burn);
 }
 
+VectorXf SBayesRC::get_betaMean2_vec(){
+    return betasum2.array() / ((niter - burn)/outFreq);
+}
+
+
+VectorXf SBayesRC::get_betaMean3_vec(){
+    return betasum3.array() / ((niter - burn)/(outFreq / 2));
+}
+
 VectorXf SBayesRC::get_hsq_mcmc(){
     return hsq_mcmc;
 }
@@ -602,7 +533,15 @@ VectorXf SBayesRC::get_vg_comp_mcmc(){
 }
 
 MatrixXf SBayesRC::get_pip(){
-    return pip_count / (niter - burn);
+    return pip_count.array() / (niter - burn);
+}
+
+MatrixXf SBayesRC::get_pip2(){
+    return pip_count2.array() / ((niter - burn)/outFreq);
+}
+
+MatrixXf SBayesRC::get_pip3(){
+    return pip_count3.array() / ((niter - burn)/(outFreq / 2));
 }
 
 MatrixXd SBayesRC::get_vare_infos(){

@@ -26,9 +26,11 @@ sbayesrc(ma_path, LD_folder, file_out)
 \item{startPi}{vector, start proportion of causal in each component}
 
 \item{gamma}{vector, gamma of each componnet}
+
+\item{bTune}{bool, perform tuning or not}
 }
 \value{
-none, output to the file_out
+none, outputs are all redirected the file_out
 }
 \description{
 SBayesRC with eigen decomposition

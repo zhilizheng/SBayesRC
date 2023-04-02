@@ -28,6 +28,8 @@ public:
     void mcmc();
     VectorXd get_mean_par_vec();
     VectorXf get_betaMean_vec();
+    VectorXf get_betaMean2_vec();
+    VectorXf get_betaMean3_vec();
     VectorXf get_hsq_mcmc();
     VectorXf get_hsq2_mcmc();
     VectorXf get_beta();
@@ -35,11 +37,14 @@ public:
     MatrixXf get_n_comp_mcmc();
     VectorXf get_vg_comp_mcmc();
     MatrixXf get_pip();
+    MatrixXf get_pip2();
+    MatrixXf get_pip3();
     MatrixXd get_vare_infos();
     MatrixXd get_hsq_infos();
     MatrixXd get_ssq_infos();
     VectorXd get_anno_ss();
     void setOutFreq();
+    void setOutBeta(bool bOut);
 
 private:
     int ndist;  // number of mixture distribution components
@@ -65,6 +70,9 @@ private:
 
     VectorXf beta; // joint beta
     VectorXf betasum; // sum of beta
+    VectorXf betasum2; // sum of beta2
+    VectorXf betasum3; // sum of beta3
+    bool bOutBeta = false;
                       //
     int niter;
     int burn;
@@ -87,6 +95,8 @@ private:
     MatrixXd ssq_infos;
     MatrixXd hsq_infos;
     MatrixXf pip_count;
+    MatrixXf pip_count2;
+    MatrixXf pip_count3;
 };
 
 #endif  //SBAYESRC_HPP
