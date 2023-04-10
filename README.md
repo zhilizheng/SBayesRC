@@ -105,8 +105,6 @@ install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.
 
 # If R report problem when installing, try alternative version (a bit worse performance)
 ## install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0_comp.tar.gz", repos=NULL, type="source")
-
-#
 ```
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
