@@ -9,74 +9,117 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#include "commR.hpp"
+#include "commR.h"
 #include <iostream>
 #include <sstream>
 #include <iterator>
 #include <fstream>
-#include "BlockLDeig.hpp"
+#include "BlockLDeig.h"
 
 using std::to_string;
 using std::endl;
 
 void BlockLDeig::readLD(string mldmDir, double cutThresh, const VectorXf &bhat, string outPrefix){
-    string mldinfo = mldmDir + "/ldm.info";
+    string mldinfo = mldmDir + separator() + "ldm.info";
     std::ifstream info(mldinfo.c_str());
     if(!info){
         Rcout << "Can't read " << mldinfo << ". Please check the file contains the LD information." << std::endl;
         throw("error");
     }
-    vector<string> header = {"block","chr", "idxBlockStart","idxBlockEnd","idxStarts","idxEnds","preBlock","postBlock"};
+    vector<string> header1 = {"block","chr", "idxBlockStart","idxBlockEnd","idxStarts","idxEnds","preBlock","postBlock"};
+    vector<string> header2 = {"Block", "Chrom", "StartSnpIdx", "StartSnpID", "EndSnpIdx", "EndSnpID", "NumSnps"};
     string line;
     std::getline(info, line);
     std::istringstream line_buf(line);
     std::istream_iterator<string> begin(line_buf), end;
     vector<string> line_elements(begin, end);
+    bool bValidInfo = false;
     if(line_elements.size() == 8){
-        if(line_elements != header){
-            Rcout << "Error: invalid header in " << mldinfo << std::endl;
-            throw("error");
+        if(line_elements == header1){
+            int line_number = 1;
+            while(std::getline(info, line)){
+                std::istringstream line_buf(line);
+                std::istream_iterator<string> begin(line_buf), end;
+                vector<string> line_elements(begin, end);
+                if(line_elements.size() != 8){
+                    Rcout << "Invalid line " << line_number + 1 << " in " << mldinfo << std::endl;
+                    throw("error");
+                }
+                /*
+                   if(stoi(line_elements[0]) != line_number){
+                   Rcout << "block can only be in sequence, error in line: " << line_number + 1<< std::endl; 
+                   throw("error");
+                   }
+                   */
+
+                idxBlocks.push_back(stoi(line_elements[0]));
+
+                int idxstart = stoi(line_elements[2]) - 1;
+                int idxend = stoi(line_elements[3]) - 1;
+                startPos.push_back(idxstart);
+                endPos.push_back(idxend);
+                ms.push_back(idxend - idxstart + 1);
+
+                idxStarts.push_back(stoi(line_elements[4]) - 1);
+                idxEnds.push_back(stoi(line_elements[5]) - 1);
+                idxBlkPres.push_back(stoi(line_elements[6]) - 1);
+                idxBlkAfters.push_back(stoi(line_elements[7]) - 1);
+
+                line_number++;
+            }
+            bValidInfo = true;
         }
-    }else{
+    }
+
+    if(line_elements.size() == 7){
+        if(line_elements == header2){
+            int line_number = 1;
+            while(std::getline(info, line)){
+                std::istringstream line_buf(line);
+                std::istream_iterator<string> begin(line_buf), end;
+                vector<string> line_elements(begin, end);
+                if(line_elements.size() != 7){
+                    Rcout << "Invalid line " << line_number + 1 << " in " << mldinfo << std::endl;
+                    throw("error");
+                }
+                /*
+                   if(stoi(line_elements[0]) != line_number){
+                   Rcout << "block can only be in sequence, error in line: " << line_number + 1<< std::endl; 
+                   throw("error");
+                   }
+                   */
+
+                idxBlocks.push_back(stoi(line_elements[0]));
+
+                int idxstart = stoi(line_elements[2]);
+                int idxend = stoi(line_elements[4]);
+                startPos.push_back(idxstart);
+                endPos.push_back(idxend);
+                int curM = stoi(line_elements[6]);
+                if(curM != idxend - idxstart + 1){
+                    Rcout << "Inconsistent number of markers in line " <<  line_number + 1 << " in " << mldinfo << std::endl;
+                    throw("Error");
+                }
+                ms.push_back(curM);
+
+                idxStarts.push_back(idxstart);
+                idxEnds.push_back(idxend);
+                idxBlkPres.push_back(-1);
+                idxBlkAfters.push_back(-1);
+
+                line_number++;
+            }
+            bValidInfo = true;
+        }
+    }
+ 
+    if(!bValidInfo){
         Rcout << "Error: invalid file (incorrect format): " << mldinfo << std::endl;
         throw("error");
     }
 
-    int line_number = 1;
-    while(std::getline(info, line)){
-        std::istringstream line_buf(line);
-        std::istream_iterator<string> begin(line_buf), end;
-        vector<string> line_elements(begin, end);
-        if(line_elements.size() != 8){
-            Rcout << "Invalid line " << line_number + 1 << " in " << mldinfo << std::endl;
-            throw("error");
-        }
-        /*
-        if(stoi(line_elements[0]) != line_number){
-            Rcout << "block can only be in sequence, error in line: " << line_number + 1<< std::endl; 
-            throw("error");
-        }
-        */
-
-        idxBlocks.push_back(stoi(line_elements[0]));
-
-        int idxstart = stoi(line_elements[2]) - 1;
-        int idxend = stoi(line_elements[3]) - 1;
-        startPos.push_back(idxstart);
-        endPos.push_back(idxend);
-        ms.push_back(idxend - idxstart + 1);
-
-        idxStarts.push_back(stoi(line_elements[4]) - 1);
-        idxEnds.push_back(stoi(line_elements[5]) - 1);
-        idxBlkPres.push_back(stoi(line_elements[6]) - 1);
-        idxBlkAfters.push_back(stoi(line_elements[7]) - 1);
-
-        line_number++;
-    }
-
     nBlocks = idxStarts.size();
     m = endPos[nBlocks-1] + 1;
-
 
     //init size
     qs = VectorXf::Zero(nBlocks);
@@ -86,22 +129,20 @@ void BlockLDeig::readLD(string mldmDir, double cutThresh, const VectorXf &bhat, 
     Rcout << " Number of variants from LD information: " << m << endl;
     Rcout << "Start reading LD information, and cutting the variance to " << cutThresh << "..." << endl;
 
-    vector<string> exts = {"var0.9999", "var0.9995", "var0.999", "var0.995", "var0.99"};
-
-    string ext = "";
-    for(int i = 0; i < exts.size(); i++){
-        string testldm = mldmDir + "/eig_block1_" + exts[i] + ".bin3";
-        if(FILE *fp = fopen(testldm.c_str(), "rb")){
-            fclose(fp);
-            ext = "_" + exts[i] + ".bin3";
-        }
+    string tempstr;
+    double fileThresh;
+    int type = getLDPrefix(mldmDir, fileThresh, tempstr);
+    if(type < 1){
+        Rcout << "can't find the valid LD file in folder " << mldmDir << std::endl;
+        throw("Error");
+    }else{
+        Rcout << "Found LD in " << tempstr << ", type: " << type << std::endl;
     }
 
-    if(ext == ""){
-        Rcout << "Error: can't find eigen binary file." << std::endl;
+    if(fileThresh < cutThresh){
+        Rcout << "can't set cutting threshold smaller than threshold in file, " << "Threshold in file: " << fileThresh << ", treshold set: " << cutThresh << std::endl;
         throw("Error");
     }
-
 
     vector<int> cur_ms(nBlocks);
     vector<int> cur_ks(nBlocks);
@@ -111,87 +152,33 @@ void BlockLDeig::readLD(string mldmDir, double cutThresh, const VectorXf &bhat, 
     #pragma omp parallel for schedule(dynamic)
     for(int idx = 0; idx < nBlocks; idx++){
         int curBlock = idxBlocks[idx];
-        string ldm = mldmDir + "/eig_block" + to_string(curBlock) + ext;
-        FILE *fp = fopen(ldm.c_str(), "rb");
-        if(!fp){
-            Rcout << "Error to read file eig_block" << curBlock << ext << std::endl;
-            exit(1);
+        VectorXf lambda(1);
+        MatrixXf U(1,1);
+        float sumLambda;
+
+        bool status = read1LD(tempstr, curBlock, type, cutThresh, U, lambda, sumLambda);
+        if(!status){
+            Rcout << "can't read file with string template " << tempstr << std::endl;
+            throw("Error");
         }
-        int32_t cur_m = 0;
-        int32_t cur_k = 0;
-        float sumLambda = 0;
-        if(fread(&cur_m, sizeof(int32_t), 1, fp) != 1){
-            Rcout << "Read " << ldm << " error (m)" << endl;
-            throw("read file error");
-        }
-        if(cur_m != ms[idx]){
-            Rcout << ldm << ": inconsistent marker number to marker information" << std::endl;
-            Rcout << ms[idx] << " marker: " << cur_m << std::endl;
+
+        if(U.rows() != ms[idx]){
+            Rcout << tempstr << " block " << curBlock << " inconsistent marker number to marker information" << std::endl;
+            Rcout << ms[idx] << " marker: " << U.rows() << std::endl;
             throw("error");
         }
 
-        if(fread(&cur_k, sizeof(int32_t), 1, fp) != 1){
-            Rcout << "Read " << ldm << " error (k)" << endl;
-            throw("read file error");
-        }
-
-        if(fread(&sumLambda, sizeof(float), 1, fp) != 1){
-            Rcout << "Read " << ldm << " error sumLambda" << endl;
-            throw("read file error");
-        }
-
-        VectorXf lambda(cur_k);
-        if(fread(lambda.data(), sizeof(float), cur_k, fp) != cur_k){
-            Rcout << "Read " << ldm << " error (lambda)" << endl;
-            throw("read file error");
-        }
-
-        // cut thresh further
-        float sums = 0;
-        float varThresh = cutThresh * sumLambda;
-        int32_t set_k = cur_k;
-        for(int j = 0; j < cur_k; j++){
-            sums += lambda[j];
-            if(sums >= varThresh){
-                set_k = j+1;
-                break;
-            }
-        }
-
-        if(set_k > cur_k){
-            set_k = cur_k;
-        }
-
-
-        qs[idx] = set_k;
-        MatrixXf U(cur_m, set_k);
-        uint64_t nElements = (uint64_t)cur_m * (uint64_t)set_k;
-        if(fread(U.data(), sizeof(float), nElements, fp) != nElements){
-            Rcout << "Read " << ldm << " error (U)" << endl;
-            throw("read file error");
-        }
-        fclose(fp);
-
-        VectorXf sqrtLambda = lambda.head(set_k).array().sqrt();
+        VectorXf sqrtLambda = lambda.array().sqrt();
         VectorXf curw = (1.0/sqrtLambda.array()).matrix().asDiagonal() * (U.transpose() * bhat.segment(startPos[idx], ms[idx]));
         MatrixXf curQ = sqrtLambda.asDiagonal() * U.transpose();
         w[idx] = curw;
         Q[idx] = curQ;
 
-        cur_ms[idx] = cur_m;
-        cur_ks[idx] = cur_k;
-        set_ks[idx] = set_k;
+        cur_ms[idx] = U.rows();
+        set_ks[idx] = U.cols();
+        qs[idx] = U.cols();
         w_sum[idx] = curw.sum();
         Q_sum[idx] = curQ.sum();
-
-        /*
-        if((idx+1) % 100 == 0){
-            double t100 = (timer.now() - tic)/1e9;
-            readTime += t100;
-            Rcout << " read 100 block up to " << idx << ", time: " << t100 << "..." << std::endl;
-            tic = timer.now();
-        }
-        */
     }
 
     //output information
@@ -200,12 +187,12 @@ void BlockLDeig::readLD(string mldmDir, double cutThresh, const VectorXf &bhat, 
         std::ofstream fout(outfile.c_str());
         if(!fout){
             Rcout << "Error: can't write to " << outfile << std::endl;
-            exit(101);
+            throw("Error");
         }
-        fout << "idx\tBlock\tStartPos\tEndPos\tLDsize\tLDSsize\tInUse\tw_sum\tQ_sum" << std::endl;
+        fout << "idx\tBlock\tStartPos\tEndPos\tLDsize\tInUse\tw_sum\tQ_sum" << std::endl;
 
         for(int idx = 0; idx < nBlocks; idx++){
-            fout << (idx + 1) << "\t" << idxBlocks[idx] << "\t" << startPos[idx] << "\t" << endPos[idx] << "\t" << cur_ms[idx] << "\t" << cur_ks[idx] << "\t" << set_ks[idx] << "\t" << w_sum[idx] << "\t" << Q_sum[idx] << std::endl;
+            fout << (idx + 1) << "\t" << idxBlocks[idx] << "\t" << startPos[idx] << "\t" << endPos[idx] << "\t" << cur_ms[idx] << "\t" << set_ks[idx] << "\t" << w_sum[idx] << "\t" << Q_sum[idx] << std::endl;
         }
 
     }
@@ -278,4 +265,150 @@ Ref<VectorXf> BlockLDeig::getW(int blk){
     return w[blk];
 }
 
+// get the LDprefix return the version
+// 0, don't find 
+// 1, old version, with bin3
+// 2. new version with eigen.bin
+int getLDPrefix(string mldm, double &cutThresh, string &tempstr){
+    vector<string> exts = {"0.9995", "0.999", "0.995", "0.99"};
 
+    string curExt = "";
+    int retCode = 0;
+    for(int i = 0; i < exts.size(); i++){
+        string testldm = mldm + separator() + "eig_block1_var" + exts[i] + ".bin3";
+        if(FILE *fp = fopen(testldm.c_str(), "rb")){
+            fclose(fp);
+            curExt =  exts[i];
+            retCode = 1;
+            tempstr = mldm + separator() + "eig_block{BLOCK}_var" + exts[i] + ".bin3";
+            cutThresh = std::stod(curExt); 
+        }
+    }
+
+    if(curExt == ""){
+        string testldm = mldm + separator() + "block1.eigen.bin";
+        if(FILE *fp = fopen(testldm.c_str(), "rb")){
+            float fCutThresh = 0;
+            fseek(fp, 12, SEEK_SET);
+            if(fread(&fCutThresh, sizeof(float), 1, fp) != 1){
+                Rcout << "Read " << testldm << " error thresh" << endl;
+            }else{
+                retCode = 2;
+                tempstr = mldm + separator() + "block{BLOCK}.eigen.bin";
+                cutThresh = fCutThresh;
+            }
+ 
+            fclose(fp);
+       }
+    }
+
+    return retCode;
+}
+
+#ifndef _STAND_ALONE_
+//' find the eigen ld file
+//' @param ldm string, input ldm
+//' @return list, type, LD threshold and each LD template
+// @export
+// [[Rcpp::export]]
+List getLDPrefix(std::string mldm){
+    string tempstr;
+    int retCode;
+    double cutThresh;
+    retCode = getLDPrefix(mldm, cutThresh, tempstr);
+    return(List::create(_["type"] = retCode, 
+                _["thresh"] = cutThresh,
+                _["template"] = tempstr
+                ));
+}
+
+// [[Rcpp::export]]
+SEXP getPseudoRand(std::string tempstr, int type, int m, Rcpp::NumericVector blocks, Rcpp::NumericVector startPos, double thresh, Eigen::Map<Eigen::VectorXd> rand){
+    VectorXf bt_add(m);
+    VectorXf randf = rand.cast<float>();
+    int n = blocks.size();
+    #pragma omp parallel for schedule(dynamic)
+    for(int i = 0; i < n; i++){
+        int curBlock = blocks[i];
+        MatrixXf U(1,1);
+        VectorXf lambda(1);
+        float sumLambda;
+        bool status = read1LD(tempstr, curBlock, type, thresh, U, lambda, sumLambda);
+        if(!status){
+            Rcout << "Read block " << curBlock << " error" << std::endl;
+            throw("Error");
+        }
+        bt_add.segment(startPos[i], U.rows()) = U * (lambda.array().sqrt().matrix().asDiagonal() * randf.segment(startPos[i], U.rows()));
+    }
+
+    return Rcpp::wrap(bt_add.cast<double>());
+}
+#endif 
+
+#include <boost/algorithm/string.hpp>
+bool read1LD(string tempstr, int idxBlock, int type, float cutThresh, MatrixXf &U, VectorXf &lambda, float &sumLambda){
+    boost::replace_all(tempstr, "{BLOCK}", std::to_string(idxBlock));
+    string ldm = tempstr;
+    FILE *fp = fopen(ldm.c_str(), "rb");
+    if(!fp){
+        Rcout << "Read " << ldm << " error (m)" << endl;
+        throw("Error");
+    }
+    int32_t cur_m = 0;
+    int32_t cur_k = 0;
+
+    if(fread(&cur_m, sizeof(int32_t), 1, fp) != 1){
+        Rcout << "Read " << ldm << " error (m)" << endl;
+        throw("read file error");
+    }
+    if(fread(&cur_k, sizeof(int32_t), 1, fp) != 1){
+        Rcout << "Read " << ldm << " error (k)" << endl;
+        throw("read file error");
+    }
+
+    if(fread(&sumLambda, sizeof(float), 1, fp) != 1){
+        Rcout << "Read " << ldm << " error sumLambda" << endl;
+        throw("read file error");
+    }
+
+    if(type == 2){
+        float fileThresh = 0;
+        if(fread(&fileThresh, sizeof(float), 1, fp) != 1){
+            Rcout << "Read " << ldm << " error thresh" << endl;
+            throw("read file error");
+        }
+    }
+
+    lambda.resize(cur_k);
+    if(fread(lambda.data(), sizeof(float), cur_k, fp) != cur_k){
+        Rcout << "Read " << ldm << " error (lambda)" << endl;
+        throw("read file error");
+    }
+
+    // cut thresh further
+    float sums = 0;
+    float varThresh = cutThresh * sumLambda;
+    int32_t set_k = cur_k;
+    for(int j = 0; j < cur_k; j++){
+        sums += lambda[j];
+        if(sums >= varThresh){
+            set_k = j+1;
+            break;
+        }
+    }
+
+    if(set_k > cur_k){
+        set_k = cur_k;
+    }
+
+
+    lambda.conservativeResize(set_k);
+    U.resize(cur_m, set_k);
+    uint64_t nElements = (uint64_t)cur_m * (uint64_t)set_k;
+    if(fread(U.data(), sizeof(float), nElements, fp) != nElements){
+        Rcout << "Read " << ldm << " error (U)" << endl;
+        throw("read file error");
+    }
+    fclose(fp);
+    return true;
+}

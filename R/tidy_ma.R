@@ -1,19 +1,34 @@
+# SBayesRC tidy the sumary data
+# License: GPL
+# Author: Zhili Zheng <zhilizheng@outlook.com>
+
 
 #' @title Tidy GWAS summary data
-#' @usage tidy(ma_path, LD_folder, output)
-#' @param ma_file string, summary data path, COJO format
-#' @param ld_folder string,  path to LD folder
+#' @usage tidy(mafile, LDdir, output)
+#' @param mafile string, summary data path, COJO format
+#' @param LDdir string,  path to LD folder
 #' @param output string, output path
-#' @param freq_thresh number, max difference in allele frequency
-#' @param N_sd_range, number, filter the per SNP sample size in mean +- N_sd_range * sd 
-#' @return none, the output is in the output file
+#' @param freq_thresh numeric, max difference in allele frequency
+#' @param N_sd_range numeric, filter the per SNP sample size in mean +- N_sd_range * sd 
+#' @param rate2pq numeric, check ratio of variance estimated by 2 methods in summary data
+#' @param log2file boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default value is FALSE
+#' @return none, results in the specified output
 #' @export
-tidy = function(ma_file, ld_folder, output, freq_thresh=0.2, N_sd_range=3, rate2pq=0.5){
+tidy = function(mafile, LDdir, output, freq_thresh=0.2, N_sd_range=3, rate2pq=0.5, log2file=FALSE){
+    ma_file = mafile
+    ld_folder = LDdir
 
-    message("All messages are redirected to ", output, ".log")
-    zz = file(paste0(output, ".log"), "wt")
-    sink(zz)
-    sink(zz, type="message")
+    message("Tidy the summary data")
+    if(file.exists(output)){
+        message("the output file ", output, " exists")
+        return
+    }
+
+    logger.begin(output, log2file)
+    if(log2file){
+        message("Tidy the summary data")
+    }
+
     message("Summary data: ", ma_file)
     message("LD path: ", ld_folder)
     message("Output: ", output)
@@ -21,7 +36,7 @@ tidy = function(ma_file, ld_folder, output, freq_thresh=0.2, N_sd_range=3, rate2
     message("N_range: ", N_sd_range)
     message("rate2pq: ", rate2pq)
 
-    snpinfo = fread(paste0(ld_folder, "/snp.info"))
+    snpinfo = fread(file.path(ld_folder, "snp.info"))
     message(nrow(snpinfo), " SNPs in LD information")
 
     ma = fread(ma_file)
@@ -92,6 +107,18 @@ tidy = function(ma_file, ld_folder, output, freq_thresh=0.2, N_sd_range=3, rate2
     message(nrow(ma_val6), " SNPs remained after QC by rate2pq ", rate2pq)
 
     fwrite(ma_val6[, ..val_col_names], file=output, quote=F, sep="\t", na="NA")
+    bWarn = FALSE
+    if(nrow(ma_val6) / nrow(snpinfo) < 0.7){
+        bWarn = TRUE
+        warning("Too many SNPs (>30%) were missing in the summary data after QC. The SBayesRC results may be unreliable.")
+    }
     message("Done")
+    logger.end()
+    if(log2file){
+        if(bWarn){
+            warning("Too many SNPs (>30%) were missing in summary data after QC. The SBayesRC results may be unreliable.")
+        }
+        message("Done.")
+    }
 }
 

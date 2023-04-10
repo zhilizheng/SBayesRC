@@ -1,3 +1,13 @@
+---
+title: "Introduction to SBayesRC"
+date: "`r Sys.Date()`"
+output:
+    rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to SBayesRC}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
 ## SBayesRC
 SBayesRC is a method that incorporates functional genomic annotations with high-density SNPs (> 7 millions) for polygenic prediction. Our manuscript is available [here](https://www.biorxiv.org/content/10.1101/2022.10.12.510418v1). Our method requires summary statistics from GWAS and LD data only. It also estimates functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
@@ -6,7 +16,7 @@ This is the R implementation of SBayesRC, which produced the results in our manu
 ## Minimal example
 Here is a complete script to run SBayesRC without coding in R for Linux or Mac:
 
-```bash
+```{bash, eval=FALSE}
 ##############################################
 # Variables: need to be fixed
 ma_file="MA_file"               # GWAS summary in COJO format (the only input)
@@ -94,10 +104,10 @@ Runtime with 4 CPU cores:
 
 ## Install
 A valid R is required. 
-```r
+```{r, eval=FALSE}
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
 # Run in R to install dependencies
-install.packages(c("Rcpp", "data.table", "BH",  "RcppEigen"))
+install.packages(c("Rcpp","data.table","BH","RcppEigen"))
 # Install SBayesRC package
 install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0.tar.gz",
                  repos=NULL, type="source")
@@ -107,21 +117,20 @@ If you are interested in developing version, try to install by devtools: `devtoo
 
 Note: The package was tested under Linux and macOS (x86\_64 and ARM) platform due to availability.
 
-
 ## Resources
 Download the resources and decompress by "unzip" (zip) or "tar -xvf" (.tar.xz):
 
 * [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
 
-* LD reference: We provide LD data from 3 UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs: [UKB Imputed](https://drive.google.com/drive/folders/1qVw5S3nH0Q6uugp2Dr8izpeEWgS0FRSc?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/16YNhF_uHkOAuHgQjxOZ9JsprPPtDdYt3?usp=share_link). We suggest to download imputed LD same ancestry as the GWAS summary data. Note: The LD data we provided is in little endian format which is widely supported by most hardware. 
+* LD reference: We provide LD data from 3 ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs: [UKB Imputed](https://drive.google.com/drive/folders/1qVw5S3nH0Q6uugp2Dr8izpeEWgS0FRSc?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/16YNhF_uHkOAuHgQjxOZ9JsprPPtDdYt3?usp=share_link). We suggest to download imputed LD same ancestry as the GWAS summary data. Note: The LD data we provided was in little endian format which is widely supported by most hardware. 
 
-If you have downloaded our previous version, no need to download it again (althrough the format changed).
+If you have downloaded our previous LD data, no need to download it again (althrough the format changed).
 
 ## Generate LD
 Always try the LD from "Resources" section first. Generate LD If more than 30% SNPs are missing in "tidy" step, or from different SNP panel, different ancestry.
 
 Here is a complete code to generate customized LD:
-```bash
+```{bash, eval=FALSE}
 ##############################################
 # Variables: need to be fixed
 ma_file="MA_file"                # GWAS summary data in COJO format
@@ -177,18 +186,6 @@ Block Chrom StartBP EndBP
 5 1 11777841 14891511
 ```
 Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP [StartBP, EndBP). So the genome build version should be consistent between the block defination and the genotype. 
-
-## News
-### v0.2.0
-* Added the tuning step using summary data only
-
-* Performance enhancement
-
-* Added a LD function
-
-* Added a new flag log2file to each function, to output the running log to file
-
-* Updated document with more details (?function in R)
 
 ## Citation
 Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418

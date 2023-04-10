@@ -2,42 +2,70 @@
 % Please edit documentation in R/sbr_eigen.r
 \name{sbayesrc}
 \alias{sbayesrc}
-\title{SBayesRC with eigen decomposition}
+\title{SBayesRC analysis}
 \usage{
-sbayesrc(ma_path, LD_folder, file_out)
+sbayesrc(mafile, LDdir, outPrefix, annot="AnnotFile_PATH")
 }
 \arguments{
-\item{file_summary}{string, summary data path, COJO format}
+\item{mafile}{string, path of summary data in COJO format}
 
-\item{ld_folder}{string, path to LD folder}
+\item{LDdir}{string, path to LD folder}
 
-\item{file_out}{string, output path}
+\item{outPrefix}{string, output path}
 
-\item{thresh}{number, eigen cutoff for LD}
+\item{annot}{string, annotation file path}
 
-\item{niter}{number, total number of MCMC iterations}
+\item{log2file}{boolean, FALSE: display message on terminal; TRUE: redirect to an output file; the default is FALSE}
 
-\item{burn}{number, numbmer of MCMC burn-in iterations}
+\item{bTune}{boolean, perform tuning or not (TRUE, FALSE), default TRUE (yes)}
 
-\item{fileAnnot}{sring, annotation file path}
+\item{tuneIter}{integer, total number of tuning iterations}
 
-\item{starth2}{number, start heritability}
+\item{tuneBurn}{integer, number of tuning iterations to burn}
+
+\item{thresh}{numeric, eigen variance cutoff for LD, default 0.995}
+
+\item{tuneStep}{numeric vector, eigen variance cutoffs to search}
+
+\item{bTunePrior}{boolean, use prior estimated from tuning step or not}
+
+\item{niter}{integer, total number of MCMC iterations}
+
+\item{burn}{integer, numbmer of MCMC burn-in iterations}
+
+\item{starth2}{numeric, heritability value to start iteration}
 
 \item{startPi}{vector, start proportion of causal in each component}
 
 \item{gamma}{vector, gamma of each componnet}
 
-\item{bTune}{bool, perform tuning or not}
+\item{method}{string, method to use (always sbr_ori)}
+
+\item{sSamVe}{string, method to re-sample residual (always allMixVe)}
+
+\item{twopq}{string, method to scale the beta}
+
+\item{bOutDetail}{boolean, output more details or not}
+
+\item{resam_thresh}{numeric, threshold to resampling the residual variance}
+
+\item{seed}{integer, random seed}
+
+\item{outFreq}{integer, frequencies to calculate the parameters and output}
+
+\item{annoSigmaScale}{numeric, scale to the annotation Sigma}
+
+\item{bOutBeta}{boolean, output raw beta or not}
 }
 \value{
-none, outputs are all redirected the file_out
+none, results in the specified output
 }
 \description{
-SBayesRC with eigen decomposition
+SBayesRC analysis
 }
 \examples{
-# run SBayesRC without annotation
-sbayesrc(ma_path, LD_folder, file_out)
-# run SBayesRC with annotation
-sbayesrc(ma_path, LD_folder, file_out, fileAnnot=annot_file_path)
+## run SBayesRC without annotation
+#sbayesrc(mafile, LDdir, output)
+## run SBayesRC with annotation
+# sbayesrc(mafile, LDdir, ouput, annot=annot_file_path)
 }

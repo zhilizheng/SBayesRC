@@ -52,5 +52,8 @@ private:
     vector<MatrixXf> Q;
 };
 
+int getLDPrefix(string mldm, double &cutThresh, string &tempstr); 
+bool read1LD(string tempstr, int idxBlock, int type, float cutThresh, MatrixXf &U, VectorXf &lambda, float &sumLambda);
+
 #endif //BLOCK_LD_EIG_H
 

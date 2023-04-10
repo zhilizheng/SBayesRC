@@ -8,12 +8,11 @@
    If not, see <http://www.gnu.org/licenses/>.
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
-#include "dist.hpp"
-#include "AnnoProb.hpp"
+
+#include "commR.h"
+#include "dist.h"
+#include "AnnoProb.h"
 #include <cmath>
-#ifdef _OPENMP
-  #include <omp.h>
-#endif
 #include <boost/algorithm/string/join.hpp>
 
 void AnnoProb::initP_Pi_annoAlpha(const VectorXf &pi, MatrixXf &snpPi) {
@@ -53,7 +52,7 @@ void AnnoProb::output(){
     // output alpha
     // todo: output annoCondProb, annoJointProb
     outs["vg_tot_annot"] << vg_tot_annot.transpose() << std::endl;
-    outs["vg_enrich_bin"] << vg_enrich_bin.transpose() << std::endl;
+    //outs["vg_enrich_bin"] << vg_enrich_bin.transpose() << std::endl;
     outs["vg_enrich_qt"] << vg_enrich_qt.transpose() << std::endl;
 
     
@@ -85,21 +84,21 @@ void AnnoProb::open(string prefix, const vector<string> &annoStrs){
     // annoCondProb: numAnno * numComp
     // annoJointProb: numAnno * numDist
     //
-    outs.emplace("vg_tot_annot", ofstream((prefix + ".vg.tot.annot").c_str()));
-    outs.emplace("vg_enrich_bin", ofstream((prefix + ".vg.enrich.bin").c_str()));
-    outs.emplace("vg_enrich_qt", ofstream((prefix + ".vg.enrich.qt").c_str()));
+    outs.emplace("vg_tot_annot", ofstream((prefix + ".mcmcsamples.AnnoTotalGenVar").c_str()));
+    //outs.emplace("vg_enrich_bin", ofstream((prefix + ".vg.enrich.bin").c_str()));
+    outs.emplace("vg_enrich_qt", ofstream((prefix + ".mcmcsamples.AnnoPerSnpHsqEnrichment").c_str()));
 
     for(int i = 0; i < numDist; i++){
         if(bOutDetail){
-            outs.emplace("annoDists" + to_string(i), ofstream((prefix + ".annoDists" + to_string(i) )));
+            outs.emplace("annoDists" + to_string(i), ofstream((prefix + ".annoDists" + to_string(i+1) )));
         }
-        outs.emplace("vg_annot_comp" + to_string(i), ofstream((prefix + ".vg.annot.comp" + to_string(i) )));
-        outs.emplace("annoJointProb" + to_string(i), ofstream((prefix + ".annoJointProb" + to_string(i) )));
+        outs.emplace("vg_annot_comp" + to_string(i), ofstream((prefix + ".mcmcsamples.AnnoGenVar_pi" + to_string(i+1) )));
+        outs.emplace("annoJointProb" + to_string(i), ofstream((prefix + ".mcmcsamples.AnnoJointProb_pi" + to_string(i+1) )));
     }
  
     for(int i = 0; i < numComp; i++){
-        outs.emplace("alpha" + to_string(i), ofstream((prefix + ".alpha" + to_string(i) )));
-        outs.emplace("annoCondProb" + to_string(i), ofstream((prefix + ".annoCondProb" + to_string(i) )));
+        outs.emplace("alpha" + to_string(i), ofstream((prefix + ".mcmcsamples.AnnoEffects_p" + to_string(i+1) )));
+        outs.emplace("annoCondProb" + to_string(i), ofstream((prefix + ".mcmcsamples.AnnoCondProb_p" + to_string(i+1) )));
     }
 
     writeHeader(annoStrs);
@@ -110,7 +109,7 @@ void AnnoProb::writeHeader(const vector<string> &annoStrs){
     string header = boost::algorithm::join(annoStrs, delim);
 
     outs["vg_tot_annot"] << header << std::endl;
-    outs["vg_enrich_bin"] << header << std::endl;
+    //outs["vg_enrich_bin"] << header << std::endl;
     outs["vg_enrich_qt"] << header << std::endl;
 
     for(int i = 0; i < numDist; i++){
@@ -129,7 +128,7 @@ void AnnoProb::writeHeader(const vector<string> &annoStrs){
 
 void AnnoProb::close(){
     outs["vg_tot_annot"].close();
-    outs["vg_enrich_bin"].close();
+    //outs["vg_enrich_bin"].close();
     outs["vg_enrich_qt"].close();
 
     for(int i = 0; i < numDist; i++){
@@ -319,12 +318,12 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
     FILE *hAnnot = fopen(fileAnnot.c_str(), "rb");
     if(!hAnnot){
         Rcout << "Error: can't open the annotation file: " << fileAnnot << std::endl;
-        exit(1);
+        throw("Error");
     }
     int64_t n_ele = (int64_t) numSnps * numAnno;
     if(fread(annoMat.data(), sizeof(float), n_ele, hAnnot) != n_ele){
         Rcout << "Error: read annotation file error, size is not correct: " << fileAnnot << std::endl;
-        exit(1);
+        throw("Error");
     }
     fclose(hAnnot);
 
@@ -362,7 +361,7 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
         float XPX = annoMat.col(i).dot(annoMat.col(i));
         if(XPX < 1e-6){
             Rcout << "Annotation column " << i+1 << " has too small XPX: " << XPX << ", please remove this column from annotation data or perform re-scale." <<std::endl;
-            exit(1);
+            throw("Error");
         }
         if(bAnnoBinary[i]){
             XPXiSD[i] = 1.0 / XPX * annoSD[i];
@@ -375,7 +374,7 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
             Eigen::FullPivLU<Matrix2f> lu(temp);
             if(!lu.isInvertible()){
                 Rcout << "Annotation column " << i+1 << " can't be inverted, please remove this column from annotation data." <<std::endl;
-                exit(2);
+                throw("Error");
             }
             XPXqiSD[i] = lu.inverse().array() * annoSD[i];
         }

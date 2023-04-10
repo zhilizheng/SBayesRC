@@ -12,7 +12,6 @@
 #ifndef SBRC_ANNO_PROB_H
 #define SBRC_ANNO_PROB_H
 
-#include "commR.hpp"
 #include <Eigen/Eigen>
 #include <vector>
 #include <string>

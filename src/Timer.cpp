@@ -9,8 +9,8 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#include "Timer.hpp"
-#include <iostream>
+#include "Timer.h"
+#include "commR.h"
 
 std::map<string, std::chrono::time_point<std::chrono::steady_clock>> Timer::time_map;
 
@@ -25,7 +25,7 @@ float Timer::elapse(string key){
         auto duration = end - time_map[key];
         secs = std::chrono::duration_cast<std::chrono::duration<float>>(duration).count();
     }else{
-        std::cout << " Error: can't find key of time start" << std::endl;
+        Rcout << " Error: can't find key of time start" << std::endl;
         throw("error");
     }
     return secs;

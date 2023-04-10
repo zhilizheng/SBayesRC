@@ -1,23 +1,29 @@
+# SBayesRC impuation
+# License: GPL
+# Author: Zhili Zheng <zhilizheng@outlook.com>
+
 
 #' @title Impute summary data
-#' @usage impute(mafile, LD_folder, output)
+#' @usage impute(mafile, LDdir, output)
 #' @param mafile string, the path of summary data in COJO format
-#' @param LD_folder string,  path of LD folder
-#' @param output string, path to output
+#' @param LDdir string,  path of LD folder
+#' @param output string, path to output (with filename.ma)
 #' @param thresh number, eigen cutoff threshold for imputation, default 0.995
-#' @return none, the output is in the output file
+#' @param log2file boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default FALSE
+#' @return none, results in the specified output
 #' @export
-impute = function(mafile, LD_folder, output, thresh=0.995){
-
+impute = function(mafile, LDdir, output, thresh=0.995, log2file=FALSE){
+    LD_folder = LDdir
+    message("Impute the summary data by LD")
     if(file.exists(output)){
-        message("don't need to run: ", output, "exists")
-        stop()
+        message("don't need to run: ", output, " exists")
+        return
     }
 
-    message("messages are redirected to ", output, ".log")
-    zz = file(paste0(output, ".log"), "wt")
-    sink(zz)
-    sink(zz, type="message")
+    logger.begin(output, log2file)
+    if(log2file){
+        message("Impute the summary data by LD")
+    }
 
     ma = fread(mafile)
     ma[, D:=2*freq * (1-freq) * N]
@@ -27,15 +33,17 @@ impute = function(mafile, LD_folder, output, thresh=0.995){
     N_median = median(ma$N)
 
 
-    snpinfo = fread(paste0(LD_folder, "/snp.info"), head=TRUE)
+    snpinfo = fread(file.path(LD_folder, "snp.info"), head=TRUE)
     if(ncol(snpinfo) == 9){
-        setnames(snpinfo, c("CHR", "SNP", "GD", "BP", "A1", "A2", "freq", "N", "blk"))
+        setnames(snpinfo, c("CHR", "SNP", "GD", "BP", "A1", "A2", "freq", "N", "Block"))
     }else if(ncol(snpinfo) == 8){
-        setnames(snpinfo, c("CHR", "SNP", "BP", "A1", "A2", "freq", "N", "blk"))
+        setnames(snpinfo, c("CHR", "SNP", "BP", "A1", "A2", "freq", "N", "Block"))
+    }else if(ncol(snpinfo) == 10){
+        setnames(snpinfo, c("CHR", "SNP", "Index", "GD", "BP", "A1", "A2", "freq", "N", "Block"))
     }else{
         stop("the LD information looks odd")
     }
-    snpfinal = snpinfo[, .(SNP, A1, A2, freq, blk)]
+    snpfinal = snpinfo[, .(SNP, A1, A2, freq, Block)]
 
     comSNP = intersect(ma$SNP, snpfinal$SNP)
 
@@ -71,31 +79,17 @@ impute = function(mafile, LD_folder, output, thresh=0.995){
     snpfinal[is.na(N), N:=N_median]
 
 
-    message("Start imputation...")
+    message("Start summary imputation...")
     all_ma = list()
 
-    idxBlocks = unique(snpfinal$blk)
+    idxBlocks = unique(snpfinal$Block)
 
-    ### check the LDs
-    curVars = c(0.9995, 0.999, 0.995)
-    usedVar = 0
-    for(curVar in curVars){
-        ldfile = paste0(LD_folder, "/eig_block1", "_var", curVar, ".bin3")
-        if(file.exists(ldfile)){
-            usedVar = curVar
-            break
-        }
-            
-    }
-    if(usedVar == 0){
-        stop("The LD path is not valid")
-    }
+    info = getLDPrefix(LD_folder)
 
     for(idxBlk in idxBlocks){
         message("==========", idxBlk, "=========")
-        ldfile = paste0(LD_folder, "/eig_block", idxBlk, "_var", usedVar, ".bin3")
 
-        ma_Block = snpfinal[blk==idxBlk]
+        ma_Block = snpfinal[Block==idxBlk]
         ma_Block[, r2:=1]
 
         m = nrow(ma_Block)
@@ -107,7 +101,7 @@ impute = function(mafile, LD_folder, output, thresh=0.995){
             ma_exist[, z:=b/se]
 
             message(" Imputing... ")
-            Zi = impGa(ldfile, ma_exist$z, idxtt, m, thresh)
+            Zi = impGa(info$template, idxBlk, info$type, ma_exist$z, idxtt, m, thresh)
 
             ma_block_n = ma_Block[-idxtt]
             ma_block_n[, z2:=Zi]
@@ -133,8 +127,13 @@ impute = function(mafile, LD_folder, output, thresh=0.995){
     }
 
     ma_out = rbindlist(all_ma)
-    ma_out[, blk:=NULL]
+    ma_out[, Block:=NULL]
     fwrite(ma_out, file=output, sep="\t", quote=F, na="NA")
 
-    message("done")
+    message("Done.")
+    print(proc.time())
+    logger.end()
+    if(log2file){
+        message("Done.")
+    }
 }

@@ -29,4 +29,12 @@ using namespace Rcpp;
 
 #endif
 
+inline char separator(){
+#if defined _WIN32 || defined __CYGWIN__
+    return '\\';
+#else
+    return '/';
+#endif
+}
+
 #endif //SBRC_ALTR_H

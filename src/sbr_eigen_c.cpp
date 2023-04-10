@@ -9,9 +9,9 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#include "commR.hpp"
+#include "commR.h"
 
-#include "SBayesRC.hpp"
+#include "SBayesRC.h"
 
 #include <Eigen/Eigen>
 #include <string>
@@ -66,7 +66,7 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
     MatrixXf pi_mcmc = sbr.get_pi_mcmc();
     NumericMatrix pi_mcmc_r(pi_mcmc.rows(), pi_mcmc.cols(), pi_mcmc.data());
 
-    VectorXf vg_comp_mcmc = sbr.get_vg_comp_mcmc();
+    MatrixXf vg_comp_mcmc = sbr.get_vg_comp_mcmc();
     NumericMatrix vg_comp_mcmc_r(vg_comp_mcmc.rows(), vg_comp_mcmc.cols(), vg_comp_mcmc.data());
 
     MatrixXf n_comp_mcmc = sbr.get_n_comp_mcmc();

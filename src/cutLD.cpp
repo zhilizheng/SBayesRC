@@ -13,20 +13,21 @@
   #include <omp.h>
 #endif
 
-#define ARMA_64BIT_WORD 1
-#include <RcppArmadillo.h>
+//#define ARMA_64BIT_WORD 1
+//#include <RcppArmadillo.h>
 
 #include <RcppEigen.h>
 #include <vector>
 #include <algorithm>
 #include <iostream>
 #include <numeric>
-#include "Timer.hpp"
-
+#include "Timer.h"
+#include "commR.h"
+#include "BlockLDeig.h"
 
 using namespace Rcpp;
 using namespace std;
-using namespace arma;
+//using namespace arma;
 
 using Eigen::Map;
 using Eigen::VectorXd;
@@ -34,104 +35,61 @@ using Eigen::VectorXf;
 using Eigen::VectorXi;
 using Eigen::MatrixXf;
 
-//' cut the LD with new thresh
-//' @param ldm string, input ldm
-//' @param outfile string, output file
-//' @param cutThresh double, cut threshold
-//' @export
 // [[Rcpp::export]]
-bool cutLD(std::string ldm, std::string outfile, double cutThresh = 1){
+bool cutLDc(std::string tempstr, int type, Rcpp::NumericVector blocks, std::string outDir, double cutThresh = 0.995){
     Timer timer;
     timer.start("cutLD");
 
-    FILE *fp = fopen(ldm.c_str(), "rb");
-    if(!fp){
-        Rcout << "Error to read LD file" << std::endl;
-        throw("read file error!");
-    }
-
-    int32_t cur_m = 0;
-    int32_t cur_k = 0;
-    float sumLambda = 0;
-
-    if(fread(&cur_m, sizeof(int32_t), 1, fp) != 1){
-        Rcout << "Read " << ldm << " error (m)" << endl;
-        throw("read m error");
-    }
-
-    if (fread(&cur_k, sizeof(int32_t), 1, fp) != 1) {
-        Rcout << "Read " << ldm << " error (k)" << endl;
-        throw("read file error");
-    }
-
-    if (fread(&sumLambda, sizeof(float), 1, fp) != 1) {
-        Rcout << "Read " << ldm << " error sumLambda" << endl;
-        throw("read file error");
-    }
-
-    VectorXf lambda(cur_k);
-    if (fread(lambda.data(), sizeof(float), cur_k, fp) != cur_k) {
-        Rcout << "Read " << ldm << " error (lambda)" << endl;
-        throw("read file error");
-    }
-
-    // cut thresh further
-    float sums = 0;
-    float varThresh = cutThresh * sumLambda;
-    int32_t set_k = cur_k;
-    for (int j = 0; j < cur_k; j++) {
-        sums += lambda[j];
-        if (sums >= varThresh) {
-            set_k = j + 1;
-            break;
+    int n = blocks.size();
+    float thresh = cutThresh;
+    #pragma omp parallel for schedule(dynamic)
+    for(int i = 0; i < n; i++){
+        int curBlock = blocks[i];
+        MatrixXf U(1,1);
+        VectorXf lambda(1);
+        float sumLambda;
+        bool status = read1LD(tempstr, curBlock, type, cutThresh, U, lambda, sumLambda);
+        if(!status){
+            Rcout << "Read block " << curBlock << " error" << std::endl;
+            throw("Error");
         }
+        int32_t cur_m = U.rows();
+        int32_t set_k = U.cols();
+        string outfile = outDir + separator() + "block" + std::to_string(curBlock) + ".eigen.bin";
+        FILE * oFile = fopen(outfile.c_str(), "wb");
+        if(fwrite(&cur_m, sizeof(int32_t), 1, oFile) != 1){
+            Rcout << "Write " << outfile << " error m" << endl;
+            throw("write error");
+        }
+
+        if(fwrite(&set_k, sizeof(int32_t), 1, oFile) != 1){
+            Rcout << "Write " << outfile << " error k" << endl;
+            throw("write error");
+        }
+
+        if(fwrite(&sumLambda, sizeof(float), 1, oFile) != 1){
+            Rcout << "Write " << outfile << " error sumLambda" << endl;
+            throw("write error");
+        }
+
+        if(fwrite(&thresh, sizeof(float), 1, oFile) != 1){
+            Rcout << "Write " << outfile << " error thresh" << endl;
+            throw("write error");
+        }
+
+        if(fwrite(lambda.data(), sizeof(float), set_k, oFile) != set_k){
+            Rcout << "Write " << outfile << " error lambda" << endl;
+            throw("write error");
+        }
+
+        uint64_t nElements = (uint64_t) cur_m * (uint64_t) set_k;
+        if (fwrite(U.data(), sizeof(float), nElements, oFile) != nElements) {
+            Rcout << "Write " << outfile << " error (U)" << endl;
+            throw("write error");
+        }
+        fclose(oFile);
     }
-
-    if (set_k > cur_k) {
-        set_k = cur_k;
-    }
-
-    MatrixXf U(cur_m, set_k);
-    uint64_t nElements = (uint64_t)cur_m * (uint64_t)set_k;
-    if (fread(U.data(), sizeof(float), nElements, fp) != nElements) {
-        Rcout << "Read " << ldm << " error (U)" << endl;
-        throw("read file error");
-    }
-    fclose(fp);
-
-    Rcout << "Prepare and reading time: " << timer.elapse("cutLD") << endl;
-
-    VectorXf curLambda = lambda.head(set_k);
-
-    
-    FILE * oFile = fopen(outfile.c_str(), "wb");
-    if(fwrite(&cur_m, sizeof(int32_t), 1, oFile) != 1){
-        Rcout << "Write " << outfile << " error m" << endl;
-        throw("write error");
-    }
-
-    if(fwrite(&set_k, sizeof(int32_t), 1, oFile) != 1){
-        Rcout << "Write " << outfile << " error k" << endl;
-        throw("write error");
-    }
-
-    if(fwrite(&sumLambda, sizeof(float), 1, oFile) != 1){
-        Rcout << "Write " << outfile << " error sumLambda" << endl;
-        throw("write error");
-    }
-
-    if(fwrite(curLambda.data(), sizeof(float), set_k, oFile) != set_k){
-        Rcout << "Write " << outfile << " error lambda" << endl;
-        throw("write error");
-    }
-
-    if (fwrite(U.data(), sizeof(float), nElements, oFile) != nElements) {
-        Rcout << "Write " << ldm << " error (U)" << endl;
-        throw("write error");
-    }
-    fclose(oFile);
 
     Rcout << "Finished" << endl;
     return true;
-
 }

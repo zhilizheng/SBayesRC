@@ -4,19 +4,21 @@
 \alias{impute}
 \title{Impute summary data}
 \usage{
-impute(mafile, LD_folder, output)
+impute(mafile, LDdir, output)
 }
 \arguments{
 \item{mafile}{string, the path of summary data in COJO format}
 
-\item{LD_folder}{string,  path of LD folder}
+\item{LDdir}{string,  path of LD folder}
 
-\item{output}{string, path to output}
+\item{output}{string, path to output (with filename.ma)}
 
 \item{thresh}{number, eigen cutoff threshold for imputation, default 0.995}
+
+\item{log2file}{boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default FALSE}
 }
 \value{
-none, the output is in the output file
+none, results in the specified output
 }
 \description{
 Impute summary data

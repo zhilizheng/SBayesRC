@@ -12,7 +12,6 @@
 #ifndef SBRC_DIST_H
 #define SBRC_DIST_H
 
-#include "commR.hpp"
 #include <Eigen/Eigen>
 
 using Eigen::VectorXf;

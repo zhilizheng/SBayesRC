@@ -1,28 +1,55 @@
+# SBayesRC main function
+# License: GPL
+# Author: Zhili Zheng <zhilizheng@outlook.com>
 
-#' @title SBayesRC with eigen decomposition
-#' @usage sbayesrc(ma_path, LD_folder, file_out)
-#' @param file_summary string, summary data path, COJO format
-#' @param ld_folder string, path to LD folder
-#' @param file_out string, output path
-#' @param thresh number, eigen cutoff for LD
-#' @param fileAnnot sring, annotation file path
-#' @param niter number, total number of MCMC iterations
-#' @param burn number, numbmer of MCMC burn-in iterations
-#' @param starth2 number, start heritability
+#' @title SBayesRC analysis
+#' @usage sbayesrc(mafile, LDdir, outPrefix, annot="AnnotFile_PATH")
+#' @param mafile string, path of summary data in COJO format
+#' @param LDdir string, path to LD folder
+#' @param outPrefix string, output path
+#' @param annot string, annotation file path
+#' @param log2file boolean, FALSE: display message on terminal; TRUE: redirect to an output file; the default is FALSE
+#' @param bTune boolean, perform tuning or not (TRUE, FALSE), default TRUE (yes)
+#' @param tuneIter integer, total number of tuning iterations
+#' @param tuneBurn integer, number of tuning iterations to burn
+#' @param thresh numeric, eigen variance cutoff for LD, default 0.995
+#' @param tuneStep numeric vector, eigen variance cutoffs to search
+#' @param bTunePrior boolean, use prior estimated from tuning step or not
+#' @param niter integer, total number of MCMC iterations
+#' @param burn integer, numbmer of MCMC burn-in iterations
+#' @param starth2 numeric, heritability value to start iteration
 #' @param startPi vector, start proportion of causal in each component 
 #' @param gamma vector, gamma of each componnet
-#' @param bTune bool, perform tuning or not
-#' @return none, outputs are all redirected the file_out
+#' @param method string, method to use (always sbr_ori)
+#' @param sSamVe string, method to re-sample residual (always allMixVe)
+#' @param twopq string, method to scale the beta
+#' @param bOutDetail boolean, output more details or not
+#' @param resam_thresh numeric, threshold to resampling the residual variance
+#' @param seed integer, random seed
+#' @param outFreq integer, frequencies to calculate the parameters and output
+#' @param annoSigmaScale numeric, scale to the annotation Sigma
+#' @param bOutBeta boolean, output raw beta or not
+#' @return none, results in the specified output
 #' @examples
-#' # run SBayesRC without annotation
-#' sbayesrc(ma_path, LD_folder, file_out)
-#' # run SBayesRC with annotation
-#' sbayesrc(ma_path, LD_folder, file_out, fileAnnot=annot_file_path)
+#' ## run SBayesRC without annotation
+#' #sbayesrc(mafile, LDdir, output)
+#' ## run SBayesRC with annotation
+#' # sbayesrc(mafile, LDdir, ouput, annot=annot_file_path)
 #' @export
-sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000, burn=1000, fileAnnot="", 
+sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
+                    bTune=TRUE, tuneIter=150, tuneBurn=100, thresh=0.995, 
+                    tuneStep=c(0.995, 0.99, 0.95, 0.9), bTunePrior=FALSE, 
+                    niter=3000, burn=1000, starth2=0.5,
+                    startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), 
+                    gamma=c(0, 0.001, 0.01, 0.1, 1), 
                     method="sbr_ori", sSamVe="allMixVe", twopq="nbsq",
-                    bOutDetail=FALSE, resam_thresh=1.1, 
-                    starth2=0.5, startPi=c(0.990, 0.005, 0.003, 0.001, 0.001), gamma=c(0, 0.001, 0.01, 0.1, 1), bTune=TRUE, tuneIter=150, tuneBurn=100, tuneStep=c(0.995, 0.99, 0.95, 0.9), bTunePrior=FALSE, seed=22, outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE){
+                    bOutDetail=FALSE, resam_thresh=1.1, seed=22, 
+                    outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE){
+    file_summary = mafile
+    ld_folder = LDdir
+    file_out = outPrefix
+    fileAnnot = annot
+
     cSamVe = "fixVe"
     if(sSamVe == "noReSamVe"){
         cSamVe = "fixVe"
@@ -78,8 +105,9 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     outfile = file_out
 
     if(file.exists(paste0(outfile, ".txt"))){
-        message("Don't need to run: ", outfile, " exists")
-        return;
+        message("The output: ", outfile, " exists")
+        message("Don't need to run")
+        return
     }
 
     if(submethod == "sbc"){
@@ -91,39 +119,39 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     message("Developed by Zhili Zheng and Jian Zeng")
     message("------------------------------------------")
 
+    logger.begin(outfile, log2file)
 
-    logfile = paste0(outfile, ".log")
-    message("Logging to ", logfile)
-    message("Please look into log file, the console output will be empty")
+    if(log2file){
+        message("------------------------------------------")
+        message("SBayesRC v", packageVersion("SBayesRC"))
+        message("Developed by Zhili Zheng and Jian Zeng")
+        message("------------------------------------------")
+    }
 
-    zz = file(logfile, "wt")
-    sink(zz)
-    sink(zz, type="message")
-
-    message("------------------------------------------")
-    message("SBayesRC v", packageVersion("SBayesRC"))
-    message("Developed by Zhili Zheng and Jian Zeng")
-    message("------------------------------------------")
-
-    message("Node: ", Sys.info()['nodename'])
-    #message("Run with method ", submethod, ", ori?", bOri)
-    message(" With annotation: ", bAnnot)
+    message(" GWAS summary statistics: ", file_summary)
+    message(" Annotation: ", bAnnot)
     if(bAnnot) message(" Annotation file: ", fileAnnot)
-    message(" Summary file: ", file_summary)
-    message(" LD input: ", ld_folder, ", var threshold: ", thresh)
-    message(" Re-sample Ve: ", cSamVe)
+    message(" LD input folder: ", ld_folder, ", eigen variance cutoff threshold: ", thresh)
+    message(" Tune the best eigen cutoff: ", bTune)
+    if(bTune){
+        message("   Tuning step: ", paste(tuneStep, collapse=" "))
+        message("   Tuning iterations: ", tuneIter)
+        message("   Tuning burn-in iterations: ", tuneBurn)
+    }
+    message(" Start hsq: ", starth2)
     message(" Start Pi: ", paste(startPi, collapse=" "))
-    message(" Gamma for effects: ", paste(gamma, collapse=" "))
+    message(" Gamma: ", paste(gamma, collapse=" "))
     nComp = length(startPi)
     if(nComp != length(gamma)){
         stop("The number of component is not consistent between pi and gamma")
     }
-    message(" Number of iteration: ", niter)
-    message("   Burn-in iteration: ", burn)
-    message(" Start hsq: ", starth2)
-    message(" Use 2pq: ", bTwopq)
-    #message(" output detail: ", bOutDetail)
-    message(" Threshold to re-sample residual: ", resam_thresh)
+    message(" Number of MCMC iteration: ", niter)
+    message("    Burn-in iteration: ", burn)
+    message(" Use 2pq to scale summary: ", bTwopq)
+    message(" Method to resample residual: ", cSamVe)
+    message(" Threshold to resample residual: ", resam_thresh)
+    message(" Hostname: ", Sys.info()['nodename'])
+    message(" Analysis started: ", Sys.time())
     message("------------------------------------------")
 
     mafile = file_summary
@@ -131,6 +159,10 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
     info = fread(file.path(ld_folder, "snp.info"))
     m = nrow(info)
+
+    if("blk" %in% colnames(info)){
+        setnames(info, "blk", "Block")
+    }
 
     # correct order
     idx = match(info$ID, ma$SNP)
@@ -151,7 +183,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     bA2A2 = (info$A2 == ma_ord$A2)
 
     if(sum(bA1A2 != bA2A1) != 0 | sum(bA1A1 != bA2A2) != 0){
-        stop("LD information and GWAS summary statistics have some alleles mismatching!")
+        stop("LD information and GWAS summary statistics have some alleles mismatching, try \"tidy\" function.")
     }
     ma_ord[bA1A2, freq := 1 - freq]
     ma_ord[bA1A2, b := (-b)]
@@ -161,7 +193,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         setnames(ma_ord, "n", "N")
     }
 
-    ma_ord[, blk:=info$blk]
+    ma_ord[, blk:=info$Block]
     dt.n = ma_ord[, list(N=mean(N)), by=blk][order(blk)]
     n = as.numeric(dt.n$N)
 
@@ -232,27 +264,16 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
     }
 
     if(bTune){
-        cRand = file(file.path(ld_folder, "rand.bin"), "rb")
-        randIdx = sample(1:50, 1)
-        seek(cRand, where=(randIdx-1) * m * 4)
+        message("Generating pseudo-summary...")
+        ma_ord[, bhat:=bhat]
+        pseudoSuma(ma_ord, ld_folder)
+        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat, bhat_t, bhat_v, n_train, n_val, bt_add, factor)], file=paste0(outfile, "_tune_inter.txt"), sep="\t", na="NA", quote=F)
 
-        ma_ord$bt_add = readBin(cRand, numeric(), size=4, m)
-
-        ma_ord[, n_train:=round(N*0.9)]
-        ma_ord[, n_val:=N - n_train]
-        ma_ord[, factor := sqrt(1/n_train - 1/N)]
-
-        ma_ord[, bhat_t := bhat + factor * bt_add]
-        ma_ord[, bhat_v := (bhat * N - bhat_t * n_train) / n_val]
-
-        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat_t, bhat_v)], file=paste0(outfile, "_tune_inter.txt"), sep="\t", na="NA", quote=F)
-
-        dt.n = ma_ord[, list(N=mean(N)), by=blk][order(blk)]
+        dt.n = ma_ord[, list(N=mean(n_train)), by=blk][order(blk)]
         n_train = as.numeric(dt.n$N)
 
         bhat_t = ma_ord$bhat_t
         bhat_v = ma_ord$bhat_v
-        message("Generated pseudo-summary ", randIdx)
     }
 
     rm(ma, ma_ord, info, bA1A1, bA2A2, bA1A2, bA2A1)
@@ -300,7 +321,7 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
             stop("Warning, the best parameter is the minimumn threshold, we suggest to expand the tuning grid by specify lower tuning value, e.g. tuneStep=c(0.995, 0.9, 0.8, 0.7, 0.6)")
         }
 
-        message("Continue with best parameter: ", thresh)
+        message("Continue with best eigen variance cutoff: ", thresh)
         if(bTunePrior){
             dt = readRDS(paste0(outfile, "_tune", thresh, ".rds"))
             startPi = dt$pi_hist[nrow(dt$pi_hist), ]
@@ -309,13 +330,13 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         }
 
         runtime = proc.time()
-        message("Time elapsed:", runtime["elapsed"], " seconds")
+        message("Time elapsed: ", round(runtime["elapsed"] / 3600, 2), " hour(s)")
         message("********************************")
         rm(bhat_t, bhat_v, dt.tune )
         gc()
     }
 
-    message("SBayesRC with eigen cutoff ", thresh)
+    message("Start SBayesRC with eigen variance cutoff ", thresh)
     outRes = paste0(outfile, ".rds")
     if(file.exists(outRes)){
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
@@ -329,8 +350,11 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
         file.remove(tempFileAnnot)
     }
 
+    message("MCMC cycles completed.")
+
     out = data.table(SNP=snp, A1=a1, BETA=res$betaMean * ord_std, PIP=(1 - res$pip[,1]),  BETAlast=res$betaLast * ord_std)
     fwrite(out, file=paste0(outfile, ".txt"), sep="\t", na="NA", quote=FALSE)
+    message("Use the ", outfile, ".txt, column 1 2 3 to calculate the polygenic risk score.")
 
     message("------------------------------------------")
     message("Parameter estimation:")
@@ -341,25 +365,52 @@ sbayesrc = function(file_summary, ld_folder, file_out, thresh=0.995, niter=3000,
 
    if(numAnno != 0){
        # per-SNP heritability
-       curDT = fread(paste0(outfile, ".vg.enrich.qt"), sep=" ")
+       curDT = fread(paste0(outfile, ".mcmcsamples.AnnoPerSnpHsqEnrichment"), sep=" ")
        curMean = colMeans(curDT)
        curSD = sapply(curDT, sd)
        outDT = data.table(Annotation = names(curMean), Enrich = curMean, SD = curSD)
-       fwrite(outDT, file=paste0(outfile, ".hsq.enrich"), sep="\t")
+       fwrite(outDT, file=paste0(outfile, ".AnnoPerSnpHsqEnrichment"), sep="\t")
 
        # comp pi
        outDTs = data.table()
-       for(curComp in 0:(nComp - 1)){
-           curDT = fread(paste0(outfile, ".annoJointProb", curComp), sep=" ")
+       for(curComp in 1:nComp){
+           curDT = fread(paste0(outfile, ".mcmcsamples.AnnoJointProb_pi", curComp), sep=" ")
            curMean = colMeans(curDT)
-           outDT = data.table(Comp=curComp, Gamma=gamma[curComp+1])
+           outDT = data.table(Comp=curComp, Gamma=gamma[curComp])
            outDTs = rbind(outDTs, cbind(outDT, t(curMean)))
        }
-       fwrite(outDTs, file=paste0(outfile, ".annoJointProb"), sep="\t")
-
+       fwrite(outDTs, file=paste0(outfile, ".AnnoJointProb"), sep="\t")
    }
 
-    message("SBayesRC run successfully!")
+    message("Analysis finished: ", Sys.time())
     runtime = proc.time()
-    message("Time elapsed:", runtime["elapsed"], " seconds")
+    message("Computational time: ", runtime["elapsed"], " seconds")
+    logger.end()
+    if(log2file){
+        message("Use the ", outfile, ".txt, column 1 2 3 to calculate the polygenic risk score.")
+        message("Parameter estimation:")
+        print(res$par)
+        message("Analysis finished: ", Sys.time())
+        message("Computational time: ", round(runtime["elapsed"] / 3600, 2), " hour(s)")
+    }
+}
+
+
+pseudoSuma <- function(suma, ldm){
+    info = getLDPrefix(ldm)
+    suma[, idx:=1:nrow(suma)]
+    dt.pos = suma[, list(start=.SD[1]$idx - 1), by=blk];
+    suma[, idx:=NULL]
+
+    m = nrow(suma)
+
+    rand_vec = rnorm(m)
+    bt_add = getPseudoRand(info$template, info$type, m, dt.pos$blk, dt.pos$start, info$thresh, rand_vec)
+
+    suma[, bt_add:=bt_add]
+    suma[, n_train:=round(N*0.9)]
+    suma[, n_val:=N - n_train]
+    suma[, factor := sqrt(1/n_train - 1/N)]
+    suma[, bhat_t := bhat + factor * bt_add]
+    suma[, bhat_v := (bhat * N - bhat_t * n_train) / n_val]
 }

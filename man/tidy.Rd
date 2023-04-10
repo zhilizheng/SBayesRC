@@ -4,21 +4,25 @@
 \alias{tidy}
 \title{Tidy GWAS summary data}
 \usage{
-tidy(ma_path, LD_folder, output)
+tidy(mafile, LDdir, output)
 }
 \arguments{
-\item{ma_file}{string, summary data path, COJO format}
+\item{mafile}{string, summary data path, COJO format}
 
-\item{ld_folder}{string,  path to LD folder}
+\item{LDdir}{string,  path to LD folder}
 
 \item{output}{string, output path}
 
-\item{freq_thresh}{number, max difference in allele frequency}
+\item{freq_thresh}{numeric, max difference in allele frequency}
 
-\item{N_sd_range, }{number, filter the per SNP sample size in mean +- N_sd_range * sd}
+\item{N_sd_range}{numeric, filter the per SNP sample size in mean +- N_sd_range * sd}
+
+\item{rate2pq}{numeric, check ratio of variance estimated by 2 methods in summary data}
+
+\item{log2file}{boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default value is FALSE}
 }
 \value{
-none, the output is in the output file
+none, results in the specified output
 }
 \description{
 Tidy GWAS summary data

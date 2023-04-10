@@ -1,0 +1,14 @@
+citHeader("To cite SBayesRC in publications, please use:")
+
+citEntry(entry = "article",
+  author = "Zheng Z and Liu S and Sidorenko J and Yengo L and Turley P and Ani A and Wang R and Nolt I and Snieder H and Yang J and Wray NR and Goddard ME and Visscher PM and Zeng J",
+  title = "Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries",
+  journal = "bioRxiv",
+  year = "2022",
+  month = "Oct",
+  day = "12",
+  publisher = "Cold Spring Harbor Laboratory",
+  doi = "10.1101/2022.10.12.510418",
+  url = "https://www.biorxiv.org/content/10.1101/2022.10.12.510418v1",
+  textVersion = "Zheng et al. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418"
+)

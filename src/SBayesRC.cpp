@@ -9,17 +9,17 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#include "SBayesRC.hpp"
-#include "commR.hpp"
+#include "SBayesRC.h"
+#include "commR.h"
 
-#include "dist.hpp"
+#include "dist.h"
 #include <Eigen/Eigen>
 #include <vector>
 #include <string>
 #include <map>
 #include <set>
 #include <cmath>
-#include "Timer.hpp"
+#include "Timer.h"
 
 
 SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS){
@@ -44,7 +44,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     bAnnot = false;
     if(numAnno > 0){
         bAnnot = true;
-        Rcout << "Running SBaysRC with annotation" << std::endl;
+        Rcout << "Running SBayesRC with annotation" << std::endl;
     }else{
         Rcout << "Running SBayesRC without annotation" << std::endl;
     }
@@ -59,7 +59,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     //annoMat.resize(0, 0);
 
     // read LD
-    blockLDeig.readLD(mldmDir, cutThresh, fbhat, outPrefix);
+    blockLDeig.readLD(mldmDir, cutThresh, fbhat, "");
     m = blockLDeig.getNMarker();
     nBlocks = blockLDeig.getNBlocks();
 
@@ -356,7 +356,7 @@ void SBayesRC::mcmc(){
             }
         }else{
             Rcout << "Error sample Ve manner" << std::endl;
-            exit(10);
+            throw("Error");
         }
 
         for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
@@ -468,7 +468,7 @@ void SBayesRC::mcmc(){
                 //output anno
                 if(bAnnot && (!outPrefix.empty())){
                     anno->computeProb();
-                    anno->computeEnrichBin(vg_snp_comp, varg2);
+                    //anno->computeEnrichBin(vg_snp_comp, varg2);
                     if(bOutDetail) {
                         anno->computeDist(z, n_comp);
                     }
@@ -528,7 +528,7 @@ MatrixXf SBayesRC::get_n_comp_mcmc(){
     return n_comp_mcmc;
 }
 
-VectorXf SBayesRC::get_vg_comp_mcmc(){
+MatrixXf SBayesRC::get_vg_comp_mcmc(){
     return vg_comp_mcmc;
 }
 

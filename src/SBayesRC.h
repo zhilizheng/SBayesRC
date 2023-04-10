@@ -14,8 +14,8 @@
 #include <Eigen/Eigen>
 #include <vector>
 
-#include "AnnoProb.hpp"
-#include "BlockLDeig.hpp"
+#include "AnnoProb.h"
+#include "BlockLDeig.h"
 
 using Eigen::VectorXf;
 using Eigen::MatrixXd;
@@ -35,7 +35,7 @@ public:
     VectorXf get_beta();
     MatrixXf get_pi_mcmc();
     MatrixXf get_n_comp_mcmc();
-    VectorXf get_vg_comp_mcmc();
+    MatrixXf get_vg_comp_mcmc();
     MatrixXf get_pip();
     MatrixXf get_pip2();
     MatrixXf get_pip3();

@@ -9,8 +9,9 @@
  * Develped by Zhili Zheng <zhilizheng@outlook.com>, 2021
  */
 
-#include "dist.hpp"
+#include "dist.h"
 
+#include "commR.h"
 #include <Eigen/Eigen>
 #include <vector>
 #include <string>
@@ -139,7 +140,7 @@ namespace TruncatedNormal {
             double alpha_cdf = Normal::cdf_01(alpha);
             double u = Normal::ranf();
             double x = alpha_cdf + (1.0 - alpha_cdf) * u;  // x ~ Uniform(alpha_cdf, 1)
-            if (x <= 0 || x >= 1) std::cout << "alpha " << alpha << " alpha_cdf " << alpha_cdf << " u " << u << " x " << x << std::endl;
+            //if (x <= 0 || x >= 1) Rcout << "alpha " << alpha << " alpha_cdf " << alpha_cdf << " u " << u << " x " << x << std::endl;
             return mean + sd * Normal::quantile_01(x);
         }
     }
@@ -158,7 +159,7 @@ namespace TruncatedNormal {
                 u = Normal::ranf();
             } while (!u);
             double x = beta_cdf * u;  // x ~ Uniform(0, beta_cdf);
-            if (x <= 0 || x >= 1) std::cout << "beta " << beta << " beta_cdf " << beta_cdf << " u " << u << " x " << x << std::endl;
+            //if (x <= 0 || x >= 1) Rcout << "beta " << beta << " beta_cdf " << beta_cdf << " u " << u << " x " << x << std::endl;
             return mean + sd * Normal::quantile_01(x);
         }
     }
