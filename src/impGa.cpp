@@ -17,8 +17,6 @@
 //#include <RcppArmadillo.h>
 //
 #include <Rcpp.h>
-#define EIGEN_USE_BLAS
-#define EIGEN_USE_LAPACKE
 #include <RcppEigen.h>
 #include <vector>
 #include <algorithm>

@@ -98,9 +98,15 @@ A valid R is required.
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
 # Run in R to install dependencies
 install.packages(c("Rcpp", "data.table", "BH",  "RcppEigen"))
+
 # Install SBayesRC package
 install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0.tar.gz",
                  repos=NULL, type="source")
+
+# If R report problem when installing, try alternative version (a bit worse performance)
+## install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0_comp.tar.gz", repos=NULL, type="source")
+
+#
 ```
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
@@ -181,13 +187,9 @@ Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP
 ## News
 ### v0.2.0
 * Added the tuning step using summary data only
-
 * Performance enhancement
-
 * Added a LD function
-
 * Added a new flag log2file to each function, to output the running log to file
-
 * Updated document with more details (?function in R)
 
 ## Citation
