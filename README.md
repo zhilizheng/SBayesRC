@@ -18,30 +18,30 @@ threads=4                       # Number of CPU cores
 ##############################################
 # Code: don't need a change in this section
 ## Note: Flags were documented in the package, use ?function in R to lookup.
-## we suggest to run those in multiple jobs (tasks)
+## We suggest to run those in multiple jobs (tasks)
 export OMP_NUM_THREADS=$threads # Revise the threads
 
-# Tidy: optinal step, tidy summary data
+# Tidy: optional step, tidy summary data
 ## "log2file=TRUE" means the messages will be redirected to a log file 
 Rscript -e "SBayesRC::tidy(mafile='$ma_file', LDdir='$ld_folder', \
                   output='${out_prefix}_tidy.ma', log2file=TRUE)"
 ## Best practice: read the log to check issues in your GWAS summary data.  
 
-# Impute: optinal step if your summary data doesn't cover the SNP panel
+# Impute: optional step if your summary data doesn't cover the SNP panel
 Rscript -e "SBayesRC::impute(mafile='${out_prefix}_tidy.ma', LDdir='$ld_folder', \
                   output='${out_prefix}_imp.ma', log2file=TRUE)"
 
-# SBayesRC: run SBayesRC, output the parameter estimation and SNP weights
+# SBayesRC: main function for SBayesRC
 Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder', \
                   outPrefix='${out_prefix}_sbrc', annot='$annot', log2file=TRUE)"
-# Alternative, without annotation (similar to SBayesR, not recommended)
+# Alternative run, SBayesRC without annotation (similar to SBayesR, not recommended)
 # Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder', \
 #                  outPrefix='${out_prefix}_sbrc_noAnnot', log2file=TRUE)"
 
 ##############################################
 # Polygenic risk score
 ## Just a toy demo to calculate the polygenic risk score using plink2
-# plink2 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header center \
+# plink2 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
 #        --threads $OMP_NUM_THREADS --out $YOUR_PRS
 ```
 ### Inputs
@@ -128,12 +128,14 @@ Here is a complete code to generate customized LD:
 ##############################################
 # Variables: need to be fixed
 ma_file="MA_file"                # GWAS summary data in COJO format
-genotype="YOUR_GENOTYPE_Prefix"  # genotype prefix as LD reference (PLINK format), {CHR} to spefify multiple
+genotype="YOUR_GENOTYPE_Prefix"  # genotype prefix as LD reference (PLINK format), with {CHR} to spefify multiple
+outDir="YOUR_OUTPUT"             # Output folder that would be created automatically
+threads=4                        # Number of CPU cores for eigen decomposition
+#---usually don't need change bellow
 genoCHR=""                       # If more than 1 genotype file, input range (e.g. "1-22") here.
 refblock=""                      # Text file to define LD blocks, by default to use our GRCH37 coordination 
-outDir="YOUR_OUTPUT"             # Output folder that would be created automatically
 tool="gctb"                      # Command line to run gctb for generating the full LD matrix
-threads=4                        # Number of CPU cores for eigen decomposition
+
 
 ##############################################
 # Code
