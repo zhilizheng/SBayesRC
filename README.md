@@ -1,10 +1,10 @@
 ## SBayesRC
 SBayesRC is a method that incorporates functional genomic annotations with high-density SNPs (> 7 millions) for polygenic prediction. Our manuscript is available [here](https://www.biorxiv.org/content/10.1101/2022.10.12.510418v1). Our method requires summary statistics from GWAS and LD data only. It also estimates functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
-This is the R implementation of SBayesRC, which produced the results in our manuscript, and had similar performance to full native version. More experimental flags exist in this version, however, it is user-friendly as demontrated in the example bellow.
+This is the R implementation of SBayesRC that produced the results in the manuscript and had a good performance (benchmarked in the manuscript). This version has more experimental flags, but it is user-friendly as demonstrated in the example below.
 
 ## Minimal example
-Here is a complete script to run SBayesRC without coding in R for Linux or Mac:
+A complete script to run SBayesRC without coding in R for Linux or Mac is provided below. Only the top few variables require modification.
 
 ```bash
 ##############################################
@@ -16,7 +16,7 @@ out_prefix="YOUR_OUTPUT_PATH"   # Output prefix, e.g. "./test"
 threads=4                       # Number of CPU cores
 
 ##############################################
-# Code: don't need a change in this section
+# Code: usually don't need a change in this section
 ## Note: Flags were documented in the package, use ?function in R to lookup.
 ## We suggest to run those in multiple jobs (tasks)
 export OMP_NUM_THREADS=$threads # Revise the threads
@@ -103,14 +103,13 @@ install.packages(c("Rcpp", "data.table", "BH",  "RcppEigen"))
 install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0.tar.gz",
                  repos=NULL, type="source")
 
-# If R report problem when installing, try alternative version (a bit worse performance)
+# If R report problem when installing, try alternative version (worse performance)
 ## install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0_comp.tar.gz", repos=NULL, type="source")
 ```
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
 
-Note: The package was tested under Linux and macOS (x86\_64 and ARM) platform due to availability.
-
+Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. We tested under CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from anaconda works great (conda install r-essentials, submit the jobs by full path of /YOUR_LOCATION/Rscript)
 
 ## Resources
 Download the resources and decompress by "unzip" (zip) or "tar -xvf" (.tar.xz):
