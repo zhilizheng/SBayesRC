@@ -109,7 +109,7 @@ install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
 
-Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. We tested under CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from anaconda works great (conda install r-essentials, submit the jobs by full path of /YOUR_LOCATION/Rscript)
+Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. The lists of OS we tested: CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from [anaconda](https://www.anaconda.com/products/distribution#Downloads) works great in all available OS (conda install r-essentials, submit the jobs by full path of /YOUR_LOCATION/Rscript)
 
 ## Resources
 Download the resources and decompress by "unzip" (zip) or "tar -xvf" (.tar.xz):
