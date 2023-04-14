@@ -151,7 +151,7 @@ Rscript -e "SBayesRC::LDstep1(mafile='$ma_file', genoPrefix='$genotype', \
 #  Input depends on $outDir/ld.sh, $outDir/snplist/$idx.snplist
 #  Ouput $outDir/b$idx.ldm.full.info, $outDir/b$idx.ldm.full.bin
 for idx in {1..591}; do
-    Rscript -e "SBayesRC::LDstep2(outDir='$outDir', blockIndex=idx, log2file=TRUE)"
+    Rscript -e "SBayesRC::LDstep2(outDir='$outDir', blockIndex=$idx, log2file=TRUE)"
 done
 
 # Step3: eigen decomposition for each LD block
@@ -161,7 +161,7 @@ done
 #  Output $outDir/block$block.eigen.bin, $outDir/block$block.eigen.bin.log
 export OMP_NUM_THREADS=$threads  # parallel computing supported in this step
 for idx in {1..591}; do
-    Rscript -e "SBayesRC::LDstep3(outDir='$outDir', blockIndex=idx, log2file=TRUE)"
+    Rscript -e "SBayesRC::LDstep3(outDir='$outDir', blockIndex=$idx, log2file=TRUE)"
 done
 
 # Step4: merge LD information
