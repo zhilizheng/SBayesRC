@@ -56,10 +56,10 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
 
     bMultiCHR = FALSE
     if(genoCHR != ""){
-        startchr = as.numeric(stringi::stri_split_fixed(genoCHR, "_", simplified=TRUE)[1])
-        endchr = as.numeric(stringi::stri_split_fixed(genoCHR, "_", simplified=TRUE)[2])
+        startchr = as.numeric(stringi::stri_split_fixed(genoCHR, "-", simplify=TRUE)[,1])
+        endchr = as.numeric(stringi::stri_split_fixed(genoCHR, "-", simplify=TRUE)[,2])
         bMultiCHR = TRUE
-        if(!grepl("{CHR}", genoPrefix)){
+        if(!grepl("\\{CHR\\}", genoPrefix)){
             stop("genoCHR has the start and end value, however there is no {CHR} in genoPrefix string")
         }
     }
@@ -154,12 +154,9 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
     fwrite(info, file=file.path(outdir, "ldm.info"), sep="\t", quote=F, na="NA")
 
     message("Done.")
-    message("Please run each line in the script: ", file.path(outdir, "ld.sh"))
-    message("You can parallel the script to speed up.")
     logger.end()
     if(log2file){
-        message("Please run each line in the script: ", file.path(outdir, "ld.sh"))
-        message("You can parallel the script to speed up.")
+        message("Done.")
     }
 }
 
