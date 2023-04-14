@@ -24,6 +24,7 @@
 #define Rprintf printf
 
 #else
+#include <Rcpp.h>
 #include <RcppEigen.h>
 using namespace Rcpp;
 

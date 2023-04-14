@@ -11,11 +11,10 @@ vignette: >
 ## SBayesRC
 SBayesRC is a method that incorporates functional genomic annotations with high-density SNPs (> 7 millions) for polygenic prediction. Our manuscript is available [here](https://www.biorxiv.org/content/10.1101/2022.10.12.510418v1). Our method requires summary statistics from GWAS and LD data only. It also estimates functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
-This is the R implementation of SBayesRC, which produced the results in our manuscript, and had similar performance to full native version. More experimental flags exist in this version, however, it is user-friendly as demontrated in the example bellow.
+This is the R implementation of SBayesRC that produced the results in the manuscript and had a good performance (benchmarked in the manuscript). This version has more experimental flags, but it is user-friendly as demonstrated in the example below.
 
 ## Minimal example
-Here is a complete script to run SBayesRC without coding in R for Linux or Mac:
-
+A complete script to run SBayesRC without coding in R for Linux or Mac is provided below. Only the top few variables require modification.
 ```{bash, eval=FALSE}
 ##############################################
 # Variables: need to be fixed
@@ -26,22 +25,22 @@ out_prefix="YOUR_OUTPUT_PATH"   # Output prefix, e.g. "./test"
 threads=4                       # Number of CPU cores
 
 ##############################################
-# Code: don't need a change in this section
+# Code: usually don't need a change in this section
 ## Note: Flags were documented in the package, use ?function in R to lookup.
 ## we suggest to run those in multiple jobs (tasks)
 export OMP_NUM_THREADS=$threads # Revise the threads
 
-# Tidy: optinal step, tidy summary data
+# Tidy: optional step, tidy summary data
 ## "log2file=TRUE" means the messages will be redirected to a log file 
 Rscript -e "SBayesRC::tidy(mafile='$ma_file', LDdir='$ld_folder', \
                   output='${out_prefix}_tidy.ma', log2file=TRUE)"
 ## Best practice: read the log to check issues in your GWAS summary data.  
 
-# Impute: optinal step if your summary data doesn't cover the SNP panel
+# Impute: optional step if your summary data doesn't cover the SNP panel
 Rscript -e "SBayesRC::impute(mafile='${out_prefix}_tidy.ma', LDdir='$ld_folder', \
                   output='${out_prefix}_imp.ma', log2file=TRUE)"
 
-# SBayesRC: run SBayesRC, output the parameter estimation and SNP weights
+# SBayesRC: main function for SBayesRC
 Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder', \
                   outPrefix='${out_prefix}_sbrc', annot='$annot', log2file=TRUE)"
 # Alternative, without annotation (similar to SBayesR, not recommended)
@@ -51,7 +50,7 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 ##############################################
 # Polygenic risk score
 ## Just a toy demo to calculate the polygenic risk score using plink2
-# plink2 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header center \
+# plink2 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
 #        --threads $OMP_NUM_THREADS --out $YOUR_PRS
 ```
 ### Inputs
@@ -119,16 +118,16 @@ install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
 
-Note: The package was tested under Linux and macOS (x86\_64 and ARM) platform due to availability.
 
 ## Resources
-Download the resources and decompress by "unzip" (zip) or "tar -xvf" (.tar.xz):
+Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
+* [Baseline model 2.2](https://plot.cnsgenomics.com/SBayesRC/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
+* LD reference: We provide LD data calculated from different UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs. We suggest to download imputed LD same ancestry as the GWAS summary data.  
+    * Imputed SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEUR_Imputed.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEAS_Imputed.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbAFR_Imputed.zip)
+    * HapMap3 SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEUR_HM3.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEAS_HM3.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbAFR_HM3.zip)
+* Example: [A summary data](https://plot.cnsgenomics.com/SBayesRC/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. 
 
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
-
-* LD reference: We provide LD data from 3 ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs: [UKB Imputed](https://drive.google.com/drive/folders/1qVw5S3nH0Q6uugp2Dr8izpeEWgS0FRSc?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/16YNhF_uHkOAuHgQjxOZ9JsprPPtDdYt3?usp=share_link). We suggest to download imputed LD same ancestry as the GWAS summary data. Note: The LD data we provided was in little endian format which is widely supported by most hardware. 
-
-If you have downloaded our previous LD data, no need to download it again (althrough the format changed).
+If you have downloaded our previous version, no need to download it again (althrough the format changed).
 
 ## Generate LD
 Always try the LD from "Resources" section first. Generate LD If more than 30% SNPs are missing in "tidy" step, or from different SNP panel, different ancestry.

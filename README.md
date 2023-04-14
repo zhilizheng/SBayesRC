@@ -112,10 +112,12 @@ If you are interested in developing version, try to install by devtools: `devtoo
 Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. The lists of OS we tested: CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from [anaconda](https://www.anaconda.com/products/distribution#Downloads) works great in all available OS (conda install r-essentials, submit the jobs by full path of /YOUR_LOCATION/Rscript)
 
 ## Resources
-Download the resources and decompress by "unzip" (zip) or "tar -xvf" (.tar.xz):
-* [Baseline model 2.2](https://drive.google.com/drive/folders/1cq364c50vMw1inJBTkeW7ynwyf2W6WIP?usp=sharing): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
-* LD reference: We provide LD data from 3 UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs: [UKB Imputed](https://drive.google.com/drive/folders/1qVw5S3nH0Q6uugp2Dr8izpeEWgS0FRSc?usp=sharing), [UKB HapMap3](https://drive.google.com/drive/folders/16YNhF_uHkOAuHgQjxOZ9JsprPPtDdYt3?usp=share_link). We suggest to download imputed LD same ancestry as the GWAS summary data. Note: The LD data we provided is in little endian format which is widely supported by most hardware. 
-* Example: [A summary data](https://drive.google.com/open?id=1-5uxiWGlCRea8mnIZY8aPcnPxtJ7nV1E) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR_HM3), Baseline 2.2 annotation, and this summary data. 
+Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
+* [Baseline model 2.2](https://plot.cnsgenomics.com/SBayesRC/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
+* LD reference: We provide LD data calculated from different UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs. We suggest to download imputed LD same ancestry as the GWAS summary data.  
+    * Imputed SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEUR_Imputed.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEAS_Imputed.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbAFR_Imputed.zip)
+    * HapMap3 SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEUR_HM3.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEAS_HM3.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbAFR_HM3.zip)
+* Example: [A summary data](https://plot.cnsgenomics.com/SBayesRC/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. 
 
 If you have downloaded our previous version, no need to download it again (althrough the format changed).
 

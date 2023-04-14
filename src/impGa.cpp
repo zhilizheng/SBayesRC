@@ -16,8 +16,11 @@
 //#define ARMA_64BIT_WORD 1
 //#include <RcppArmadillo.h>
 //
-#include <Rcpp.h>
-#include <RcppEigen.h>
+
+#if !defined _WIN32 && !defined __CYGWIN__
+#define EIGEN_USE_BLAS
+#endif
+#include "commR.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
