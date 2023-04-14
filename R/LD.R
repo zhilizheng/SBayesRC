@@ -56,8 +56,8 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
 
     bMultiCHR = FALSE
     if(genoCHR != ""){
-        startchr = as.numeric(stri_split_fixed(genoCHR, "_", simplified=TRUE)[1])
-        endchr = as.numeric(stri_split_fixed(genoCHR, "_", simplified=TRUE)[2])
+        startchr = as.numeric(stringi::stri_split_fixed(genoCHR, "_", simplified=TRUE)[1])
+        endchr = as.numeric(stringi::stri_split_fixed(genoCHR, "_", simplified=TRUE)[2])
         bMultiCHR = TRUE
         if(!grepl("{CHR}", genoPrefix)){
             stop("genoCHR has the start and end value, however there is no {CHR} in genoPrefix string")
@@ -68,7 +68,7 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
 
     if(bMultiCHR){
         for(idx in startchr:endchr){
-            geno1 = stri_replace_all_fixed(genoPrefix, "{CHR}", idx)
+            geno1 = stringi::stri_replace_all_fixed(genoPrefix, "{CHR}", idx)
             bims[[idx]] = fread(paste0(geno1, ".bim"))
         }
     }else{
@@ -142,7 +142,7 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
     valid_poses[, cmd:=paste0(tool, " --bfile ", genoPrefix, " --chr ", chr, " --extract ", file.path(snpdir, paste0(newBlk, ".snplist")), " --make-full-ldm --out ", out, " &> ", out, ".log")]
 
     if(bMultiCHR){
-        valid_poses[, cmd:=stri_replace_all_fixed(cmd, "{CHR}", chr)]
+        valid_poses[, cmd:=stringi::stri_replace_all_fixed(cmd, "{CHR}", chr)]
     }
 
     cat(valid_poses$cmd, file=file.path(outdir, "ld.sh"), sep="\n")

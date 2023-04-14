@@ -13,13 +13,14 @@ URL: https://github.com/zhilizheng/SBayesRC
 BugReports: https://github.com/zhilizheng/SBayesRC/issues
 Imports: 
     Rcpp,
-    data.table
+    stringi
 LinkingTo: Rcpp, BH, RcppEigen
 RoxygenNote: 7.1.2
 Depends:
     R (>= 3.0.0),
     methods,
     utils,
+    data.table,
     stats
 Suggests:
     knitr,
