@@ -331,7 +331,7 @@ LDstep4 <- function(outDir, log2file=FALSE){
 
     fwrite(info[, .(Chrom,ID,Index,GenPos,PhysPos,A1,A2,A1Freq,N, Block)], file=infofile, sep="\t")
     message("snp.info has been generated")
-    message("To save the storage, you could remove the ", file.path(output, "*.ldm.bin"), " after everything cheked OK")
+    message("To save the storage, you could remove the ", file.path(gDir, "*.ldm.bin"), " after everything cheked OK")
     message("The LD is completed!")
     logger.end()
     if(log2file){
