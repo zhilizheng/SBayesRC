@@ -194,7 +194,7 @@ void AnnoProb::annoEffect_sample_Gibbs(const MatrixXf &z) {
             } else {
                 annoMatPO.setZero(numDP, numAnno);
                 zi.setZero(numDP);
-                for (unsigned j = 0, idx = 0; j < numSnps; ++j) {
+                for (int j = 0, idx = 0; j < numSnps; ++j) {
                     if (z(j, i - 1)) {
                         annoMatPO.row(idx) = annoMat.row(j);
                         zi[idx] = z(j, i);
@@ -239,7 +239,7 @@ void AnnoProb::annoEffect_sample_Gibbs(const MatrixXf &z) {
 
             // annotations are fitted with a normal prior
             ssq[i] = 0;
-            for (unsigned k = 1; k < numAnno; ++k) {
+            for (int k = 1; k < numAnno; ++k) {
                 oldSample = alphai[k];
                 rhs = annoMati.col(k).dot(y) + annoDiagi[k] * oldSample;
                 invLhs = 1.0 / (annoDiagi[k] + 1.0 / sigmaSq[i]);
@@ -257,7 +257,7 @@ void AnnoProb::annoEffect_sample_Gibbs(const MatrixXf &z) {
         //cout << i << " " << alphai.transpose() << endl;
 
         /*
-        for (unsigned j = 0; j < numSnps; ++j) {
+        for (int j = 0; j < numSnps; ++j) {
             snpP(j, i) = Normal::cdf_01(annoMat.row(j).dot(alphai));
         }
         */
