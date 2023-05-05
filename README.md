@@ -197,3 +197,7 @@ Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder 
 
 ## Bug report
 Report issue to GitHub repository ([https://github.com/zhilizheng/SBayesRC](https://github.com/zhilizheng/SBayesRC)) by using the "Issues" feature.
+
+### Known issues from system:
+
+Ubuntu 22.04, has a broken openBLAS version 0.3.20.  If you generate the LD (or just perform PCA in R for your other analysis), the matrix is incorrect. 
