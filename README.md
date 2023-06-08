@@ -40,8 +40,8 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 
 ##############################################
 # Polygenic risk score
-## Just a toy demo to calculate the polygenic risk score using plink2
-# plink2 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
+## Just a toy demo to calculate the polygenic risk score using plink1.9 (plink2 remove "sum")
+# plink1.9 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
 #        --threads $OMP_NUM_THREADS --out $YOUR_PRS
 ```
 ### Inputs
