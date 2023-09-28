@@ -13,6 +13,7 @@
 #define SBAYESRC_HPP
 #include <Eigen/Eigen>
 #include <vector>
+#include <set>
 
 #include "AnnoProb.h"
 #include "BlockLDeig.h"
@@ -24,7 +25,7 @@ using Eigen::MatrixXf;
 class SBayesRC{
 
 public:
-    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
+    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
     void mcmc();
     VectorXd get_mean_par_vec();
     VectorXf get_betaMean_vec();
@@ -43,6 +44,7 @@ public:
     MatrixXd get_hsq_infos();
     MatrixXd get_ssq_infos();
     VectorXd get_anno_ss();
+    void outRmIndex(std::string outPrefix);
     void setOutFreq();
     void setOutBeta(bool bOut);
 
@@ -68,8 +70,12 @@ private:
     BlockLDeig blockLDeig; // block LD eigen
 
 
+    VectorXf b;
+    float betaThresh; 
+    std::vector<std::set<int>> delSNPs;
     VectorXf beta; // joint beta
     VectorXf betasum; // sum of beta
+    VectorXf betasum_all; // sum of beta all iter
     VectorXf betasum2; // sum of beta2
     VectorXf betasum3; // sum of beta3
     bool bOutBeta = false;

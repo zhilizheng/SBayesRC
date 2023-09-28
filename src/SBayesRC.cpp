@@ -20,6 +20,7 @@
 #include <set>
 #include <cmath>
 #include "Timer.h"
+#include <algorithm>
 
 
 SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS){
@@ -36,6 +37,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     this->curSamVe = samVe;
     this->fgamma = fgamma;
     this->outFreq = outFreq;
+    this->b = fbhat;
 
     int nMarker = fbhat.size();
     ndist = fgamma.size();  // number of mixture distribution components
@@ -90,6 +92,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
 
     beta = VectorXf::Zero(m);
     betasum = VectorXf::Zero(m);
+    betasum_all = VectorXf::Zero(m);
 
     // history
     hsq_mcmc = VectorXf::Zero(niter);
@@ -104,6 +107,13 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     ssq_infos.resize((niter - burn)/outFreq, nBlocks);
     hsq_infos.resize((niter - burn)/outFreq, nBlocks);
     pip_count = MatrixXf::Zero(m, ndist);
+
+    VectorXf abs_b = fbhat.array().abs();
+    std::sort(abs_b.data(), abs_b.data() + abs_b.size());
+    int index8 = 0.8 * (m - 1);
+    betaThresh = abs_b[index8];
+    Rcout << "Set beta cut threshold: " << betaThresh << std::endl;
+    delSNPs.resize(nBlocks);
 }
 
 void SBayesRC::setOutBeta(bool bOut){
@@ -181,6 +191,7 @@ void SBayesRC::mcmc(){
             //Rcout << "Blk: " << idxBlk << std::endl;
             Ref<const MatrixXf> curQ = blockLDeig.getQ(idxBlk);
             Ref<VectorXf> wcorr = blockLDeig.getW(idxBlk);
+            std::set<int>& delSNP = delSNPs.at(idxBlk);
             int startM = blockLDeig.getIdxStart(idxBlk);
             int endM = blockLDeig.getIdxEnd(idxBlk);
 
@@ -195,6 +206,10 @@ void SBayesRC::mcmc(){
             //VectorXf sqrtInvLhs = invLhs.array().sqrt();
 
             for(int idx = startM; idx <= endM; idx++){
+                int found = delSNP.count(idx);
+                if(found != 0){
+                    continue;
+                }
                 float oldSample = beta[idx];
                 Ref<const VectorXf> curQi = curQ.col(idx - baseStart);
                 float rhs = (curQi.dot(wcorr) + oldSample)*vareDn;
@@ -237,20 +252,34 @@ void SBayesRC::mcmc(){
                 bool bReviseWhat = false;
                 if(delta != 0){
                     beta[idx] = Normal::sample(uhat[delta], invLhs[delta]);
-                    //wcorr = wcorr + curQi * (oldSample - beta[idx]);
-                    adj_wcorr = oldSample - beta[idx];
-                    //vg_snps(idx) = beta[idx] * beta[idx] * weightQ(idx);
-                    //vg_snps2(idx) = beta[idx] * beta[idx] * weightQ2(idx);
-                    what = what + curQi * beta[idx];
-                    bReviseWhat = true;
-                    //curNnz = curNnz + 1;
 
-                    //z(idx, 0) = 1;
-                    //if(delta > 1) z(idx, 1) = 1;
-                    //if(delta > 2) z(idx, 2) = 1;
-                    for(int i2 = 0; i2 < delta ; i2++){
-                        z(idx, i2) = 1;
-                    }
+                    /*
+                    float rate_b = abs((beta[idx] - b[idx])/b[idx]);
+                    bool sameSign = (b[idx] >= 0.0f) == (beta[idx] >= 0.0f);
+                    float compare_rate = sameSign ? 2 : 1.1;
+
+                    if(abs(beta[idx]) > betaThresh && rate_b > compare_rate){
+                        adj_wcorr = oldSample;
+                        beta[idx] = 0;
+                        cur_causal(idx, delta) = 0;
+                        delSNP.insert(idx);
+                    }else{
+                    */
+                        //wcorr = wcorr + curQi * (oldSample - beta[idx]);
+                        adj_wcorr = oldSample - beta[idx];
+                        //vg_snps(idx) = beta[idx] * beta[idx] * weightQ(idx);
+                        //vg_snps2(idx) = beta[idx] * beta[idx] * weightQ2(idx);
+                        what = what + curQi * beta[idx];
+                        bReviseWhat = true;
+                        //curNnz = curNnz + 1;
+
+                        //z(idx, 0) = 1;
+                        //if(delta > 1) z(idx, 1) = 1;
+                        //if(delta > 2) z(idx, 2) = 1;
+                        for(int i2 = 0; i2 < delta ; i2++){
+                            z(idx, i2) = 1;
+                        }
+                    //}
                 }else{
                     //if(oldSample != 0) wcorr = wcorr + curQi * oldSample;
                     adj_wcorr = oldSample;
@@ -272,6 +301,9 @@ void SBayesRC::mcmc(){
             Vg_block[idxBlk] = curVarg;
         }
 
+        //if(iter >= 20){
+            betasum_all = betasum_all + beta;
+        //}
         if(iter >= burn) {
             betasum = betasum + beta;
             pip_count = pip_count + cur_causal;
@@ -439,6 +471,49 @@ void SBayesRC::mcmc(){
                 double t100 = timer.elapse("sbrc");
                 //Rprintf("\n iter %i, pi = %6.3f, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f, time = %6.3f\n", iter + 1, pi, nnz, sigmaSq, hsq, m_vare, varg, t100); 
                 //Rprintf("\n iter %i, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f,  varg2 = %6.3f, time = %6.3f\n", iter + 1, nnz, sigmaSq, hsq, m_vare, varg, varg2, t100); 
+                // check the SNPs
+                int NdelSNPs = 0;
+                VectorXf betaVals = betasum_all.array() / (iter + 1);
+                VectorXi vDelSNPs = VectorXi::Zero(nBlocks);
+                #pragma omp parallel for schedule(dynamic)
+                for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
+                    Ref<const MatrixXf> curQ = blockLDeig.getQ(idxBlk);
+                    Ref<VectorXf> wcorr = blockLDeig.getW(idxBlk);
+                    std::set<int>& delSNP = delSNPs.at(idxBlk);
+                    int startM = blockLDeig.getIdxStart(idxBlk);
+                    int endM = blockLDeig.getIdxEnd(idxBlk);
+
+                    int baseStart = blockLDeig.getStartPos(idxBlk);
+
+                    for(int idx = startM; idx <= endM; idx++){
+                        int found = delSNP.count(idx);
+                        if(found != 0){
+                            vDelSNPs[idxBlk] += 1;
+                            continue;
+                        }
+                        if((iter + 1) == niter){
+                            continue;
+                        }
+                        Ref<const VectorXf> curQi = curQ.col(idx - baseStart);
+                        float betaVal = betaVals[idx];
+                        float rate_b = abs((betaVal - b[idx])/b[idx]);
+                        bool sameSign = (b[idx] >= 0.0f) == (betaVal >= 0.0f);
+                        float compare_rate = sameSign ? 2 : 1.1;
+
+                        if(abs(betaVal) > betaThresh && rate_b > compare_rate){
+                            float adj_wcorr = beta[idx];
+                            wcorr = wcorr + curQi * adj_wcorr;
+                            beta[idx] = 0;
+                            betasum[idx] = 0;
+                            betasum_all[idx] = 0;
+                            delSNP.insert(idx);
+                            vDelSNPs[idxBlk] += 1;
+                        }
+                    }
+                }
+
+ 
+                //
                 string n_str = "";
                 string vg_str = "";
                 for(int i = 1; i < ndist; i++){
@@ -447,7 +522,7 @@ void SBayesRC::mcmc(){
                     string vg_temp1 = vg_temp0.substr(0, vg_temp0.find(".") + 3 + 1);
                     vg_str = vg_str + "vg" + to_string(i+1) + "=" + vg_temp1 + ", ";
                 }
-                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, time = %.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, t100); 
+                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), t100); 
 
                 //Rcout << "ProbDelta Mean: " << probDeltas.mean() << std::endl;
                 timer.start("sbrc");
@@ -558,4 +633,14 @@ MatrixXd SBayesRC::get_hsq_infos(){
 
 VectorXd SBayesRC::get_anno_ss(){
     return annoSS;
+}
+
+void SBayesRC::outRmIndex(std::string outPrefix){
+    ofstream outs((outPrefix + ".rm.snpidx").c_str());
+    for(int idx = 0; idx < nBlocks; idx++){
+        for(int index : delSNPs[idx]){
+            outs << index << std::endl;
+        }
+    }
+    outs.close();
 }

@@ -47,6 +47,8 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
     sbr.setOutBeta(bOutBeta);
     sbr.mcmc();
 
+    sbr.outRmIndex(outPrefix);
+
     // return 
     VectorXd mean_par_vec = sbr.get_mean_par_vec();
     NumericVector mean_par(mean_par_vec.data(), mean_par_vec.data() + mean_par_vec.size());
