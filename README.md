@@ -103,7 +103,7 @@ install.packages(c("Rcpp", "data.table", "stringi", "BH",  "RcppEigen"))
 install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.1/SBayesRC_0.2.1.tar.gz",
                  repos=NULL, type="source")
 
-# If R report problem when installing, try alternative version (worse performance)
+# If R report problem when installing, try alternative version (worse performance and an old version)
 ## install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0_comp.tar.gz", repos=NULL, type="source")
 ```
 
@@ -119,7 +119,7 @@ Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
     * HapMap3 SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEUR_HM3.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEAS_HM3.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbAFR_HM3.zip)
 * Example: [A summary data](https://plot.cnsgenomics.com/SBayesRC/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. 
 
-If you have downloaded our previous version, no need to download it again (althrough the format changed).
+If you have downloaded our resources in previous version, no need to download it again (althrough the format changed).
 
 ## Generate LD
 Always try the LD from "Resources" section first. Generate LD If more than 30% SNPs are missing in "tidy" step, or from different SNP panel, different ancestry.
