@@ -29,6 +29,7 @@
 #' @param outFreq integer, frequencies to calculate the parameters and output
 #' @param annoSigmaScale numeric, scale to the annotation Sigma
 #' @param bOutBeta boolean, output raw beta or not
+#' @param exclude string, path to a file contains the SNPs excluded from modeling, defalut empty;
 #' @return none, results in the specified output
 #' @examples
 #' ## run SBayesRC without annotation
@@ -44,7 +45,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
                     gamma=c(0, 0.001, 0.01, 0.1, 1), 
                     method="sbr_ori", sSamVe="allMixVe", twopq="nbsq",
                     bOutDetail=FALSE, resam_thresh=1.1, seed=22, 
-                    outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE){
+                    outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE, exclude=''){
     file_summary = mafile
     ld_folder = LDdir
     file_out = outPrefix
@@ -163,6 +164,22 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
     if("blk" %in% colnames(info)){
         setnames(info, "blk", "Block")
     }
+
+    # del SNPs 
+    rmSNPIndices = as.integer(c())
+    if(exclude != ""){
+        if(file.exists(exclude)){
+            rmSNPs = readLines(exclude)
+            message(length(rmSNPs), " SNPs in exclude file [", exclude, "]. ")
+            idx1 = match(rmSNPs, info$ID)
+            valid_idx = idx1[is.finite(idx1)] - 1
+            rmSNPIndices = as.integer(sort(valid_idx))
+            message(length(rmSNPIndices), " SNPs will be excluded from the analysis.")
+        }else{
+            stop("exclude file does not exist: ", exclude)
+        }
+    }
+
 
     # correct order
     idx = match(info$ID, ma$SNP)
@@ -287,7 +304,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
             curFile = paste0(outfile, "_tune", tune_thresh)
             message("--------------------------------")
             message("Tune with parameter ", tune_thresh)
-            res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+            res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, rmSNPIndices, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
             saveRDS(res, file=paste0(curFile, ".rds"))
 
             dt.tune = rbind(dt.tune, data.table(thresh=tune_thresh, r=(t(res$betaMean) %*% bhat_v)[1] / sqrt(sum(res$betaMean^2))))
@@ -342,7 +359,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
         saveRDS(res, file=outRes)
     }
 

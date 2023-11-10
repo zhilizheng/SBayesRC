@@ -23,7 +23,7 @@
 #include <algorithm>
 
 
-SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS){
+SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, const std::vector<int> &rmSNPIndices, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS){
 
     this->niter = niter;
     this->burn = burn;
@@ -112,8 +112,31 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     std::sort(abs_b.data(), abs_b.data() + abs_b.size());
     int index8 = 0.8 * (m - 1);
     betaThresh = abs_b[index8];
-    Rcout << "Set beta cut threshold: " << betaThresh << std::endl;
+    Rcout << "Set beta cutoff threshold: " << betaThresh << std::endl;
+
     delSNPs.resize(nBlocks);
+    if(rmSNPIndices.size() != 0){
+        int curIdx = 0;
+        int curRMIndex = rmSNPIndices[curIdx];
+        bool b_allLoop = false;
+        for(int blk = 0; blk < nBlocks; blk++){
+            int start = blockLDeig.getIdxStart(blk);
+            int end = blockLDeig.getIdxEnd(blk);
+            if(b_allLoop) break;
+            while(curRMIndex >= start && curRMIndex <= end){
+                delSNPs[blk].insert(curRMIndex);
+                curIdx++;
+                if(curIdx < rmSNPIndices.size()){
+                    curRMIndex = rmSNPIndices[curIdx];
+                }else{
+                    b_allLoop = true;
+                    break;
+                }
+            }
+        }
+
+        Rcout << curIdx << " SNPs will be removed from MCMC." << std::endl;
+    }
 }
 
 void SBayesRC::setOutBeta(bool bOut){
@@ -475,6 +498,7 @@ void SBayesRC::mcmc(){
                 int NdelSNPs = 0;
                 VectorXf betaVals = betasum_all.array() / (iter + 1);
                 VectorXi vDelSNPs = VectorXi::Zero(nBlocks);
+                VectorXi signDelSNPs = VectorXi::Zero(nBlocks);
                 #pragma omp parallel for schedule(dynamic)
                 for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
                     Ref<const MatrixXf> curQ = blockLDeig.getQ(idxBlk);
@@ -501,6 +525,7 @@ void SBayesRC::mcmc(){
                         float compare_rate = sameSign ? 2 : 1.1;
 
                         if(abs(betaVal) > betaThresh && rate_b > compare_rate){
+                            //Rcout << "DEL:" << "\t" << betaVal << "\t" << b[idx] << "\t" << rate_b << "\t" << compare_rate << std::endl;
                             float adj_wcorr = beta[idx];
                             wcorr = wcorr + curQi * adj_wcorr;
                             beta[idx] = 0;
@@ -508,6 +533,7 @@ void SBayesRC::mcmc(){
                             betasum_all[idx] = 0;
                             delSNP.insert(idx);
                             vDelSNPs[idxBlk] += 1;
+                            if(!sameSign) signDelSNPs[idxBlk] += 1;
                         }
                     }
                 }
@@ -522,7 +548,7 @@ void SBayesRC::mcmc(){
                     string vg_temp1 = vg_temp0.substr(0, vg_temp0.find(".") + 3 + 1);
                     vg_str = vg_str + "vg" + to_string(i+1) + "=" + vg_temp1 + ", ";
                 }
-                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), t100); 
+                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, flipSign=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), signDelSNPs.sum(),t100); 
 
                 //Rcout << "ProbDelta Mean: " << probDeltas.mean() << std::endl;
                 timer.start("sbrc");

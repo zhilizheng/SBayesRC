@@ -100,7 +100,7 @@ A valid R is required.
 install.packages(c("Rcpp", "data.table", "stringi", "BH",  "RcppEigen"))
 
 # Install SBayesRC package
-install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.1/SBayesRC_0.2.1.tar.gz",
+install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.2/SBayesRC_0.2.2.tar.gz",
                  repos=NULL, type="source")
 
 # If R report problem when installing, try alternative version (worse performance and an old version)
@@ -109,7 +109,7 @@ install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.
 
 If you are interested in developing version, try to install by devtools: `devtools::install_github("zhilizheng/SBayesRC")`.
 
-Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. The lists of OS we tested: CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from [anaconda](https://www.anaconda.com/products/distribution#Downloads) works great in all available OS (conda install r-base, submit the jobs by full path of /YOUR_CONDA_LOCATION/Rscript by `which Rscript`)
+Note: The package was tested under Linux and macOS (x64 and ARM) platform due to availability. The lists of OS we tested: CentOS > 7; Debian > 9; Ubuntu > 20.04; macOS > 11. We find the default R in CentOS7 didn't work good due to an issue in RcppEigen package (gcc 4.8). For users who don't have admin permission and had problem to install the package,  the R from [anaconda](https://www.anaconda.com/products/distribution#Downloads) works great in all available OS (conda install r-base, submit the jobs by full path of /YOUR\_CONDA\_LOCATION/Rscript by `which Rscript`)
 
 ## Resources
 Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
@@ -185,6 +185,9 @@ Block Chrom StartBP EndBP
 Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP [StartBP, EndBP). So the genome build version should be consistent between the block defination and the genotype. 
 
 ## News
+### v0.2.2
+* Enabled excluding variants by "exclude" flag.
+
 ### v0.2.1
 * Improved robustness by removing error variants.
 

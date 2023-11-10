@@ -73,8 +73,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sbayesr_eigen_joint_annot
-List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS, bool bOutBeta);
-RcppExport SEXP _SBayesRC_sbayesr_eigen_joint_annot(SEXP niterSEXP, SEXP burnSEXP, SEXP bhatSEXP, SEXP numAnnoSEXP, SEXP annoStrsSEXP, SEXP mldmDirSEXP, SEXP varySEXP, SEXP blkNSEXP, SEXP cgammaSEXP, SEXP startPiSEXP, SEXP starth2SEXP, SEXP cutThreshSEXP, SEXP bOriginSEXP, SEXP outPrefixSEXP, SEXP samVeSEXP, SEXP resam_threshSEXP, SEXP bOutDetailSEXP, SEXP outFreqSEXP, SEXP initAnnoSSSEXP, SEXP bOutBetaSEXP) {
+List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, Rcpp::IntegerVector rmSNPIndices, double starth2, double cutThresh, bool bOrigin, std::string outPrefix, std::string samVe, double resam_thresh, bool bOutDetail, int outFreq, double initAnnoSS, bool bOutBeta);
+RcppExport SEXP _SBayesRC_sbayesr_eigen_joint_annot(SEXP niterSEXP, SEXP burnSEXP, SEXP bhatSEXP, SEXP numAnnoSEXP, SEXP annoStrsSEXP, SEXP mldmDirSEXP, SEXP varySEXP, SEXP blkNSEXP, SEXP cgammaSEXP, SEXP startPiSEXP, SEXP rmSNPIndicesSEXP, SEXP starth2SEXP, SEXP cutThreshSEXP, SEXP bOriginSEXP, SEXP outPrefixSEXP, SEXP samVeSEXP, SEXP resam_threshSEXP, SEXP bOutDetailSEXP, SEXP outFreqSEXP, SEXP initAnnoSSSEXP, SEXP bOutBetaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,6 +88,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type blkN(blkNSEXP);
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type cgamma(cgammaSEXP);
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type startPi(startPiSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rmSNPIndices(rmSNPIndicesSEXP);
     Rcpp::traits::input_parameter< double >::type starth2(starth2SEXP);
     Rcpp::traits::input_parameter< double >::type cutThresh(cutThreshSEXP);
     Rcpp::traits::input_parameter< bool >::type bOrigin(bOriginSEXP);
@@ -98,7 +99,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type outFreq(outFreqSEXP);
     Rcpp::traits::input_parameter< double >::type initAnnoSS(initAnnoSSSEXP);
     Rcpp::traits::input_parameter< bool >::type bOutBeta(bOutBetaSEXP);
-    rcpp_result_gen = Rcpp::wrap(sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS, bOutBeta));
+    rcpp_result_gen = Rcpp::wrap(sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, rmSNPIndices, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS, bOutBeta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -108,7 +109,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_SBayesRC_getPseudoRand", (DL_FUNC) &_SBayesRC_getPseudoRand, 7},
     {"_SBayesRC_cutLDc", (DL_FUNC) &_SBayesRC_cutLDc, 5},
     {"_SBayesRC_impGa", (DL_FUNC) &_SBayesRC_impGa, 8},
-    {"_SBayesRC_sbayesr_eigen_joint_annot", (DL_FUNC) &_SBayesRC_sbayesr_eigen_joint_annot, 20},
+    {"_SBayesRC_sbayesr_eigen_joint_annot", (DL_FUNC) &_SBayesRC_sbayesr_eigen_joint_annot, 21},
     {NULL, NULL, 0}
 };
 

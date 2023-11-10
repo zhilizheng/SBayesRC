@@ -25,7 +25,7 @@ using Eigen::MatrixXf;
 class SBayesRC{
 
 public:
-    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
+    SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, const std::vector<int> &rmSNPIndices, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
     void mcmc();
     VectorXd get_mean_par_vec();
     VectorXf get_betaMean_vec();

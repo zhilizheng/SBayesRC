@@ -56,6 +56,8 @@ sbayesrc(mafile, LDdir, outPrefix, annot="AnnotFile_PATH")
 \item{annoSigmaScale}{numeric, scale to the annotation Sigma}
 
 \item{bOutBeta}{boolean, output raw beta or not}
+
+\item{exclude}{string, path to a file contains the SNPs excluded from modeling, defalut empty;}
 }
 \value{
 none, results in the specified output

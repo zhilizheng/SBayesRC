@@ -22,7 +22,7 @@ impGa <- function(tempstr, curBlock, type, z, typedIndex, m, cutThresh = 0.995, 
     .Call(`_SBayesRC_impGa`, tempstr, curBlock, type, z, typedIndex, m, cutThresh, diag_mod)
 }
 
-sbayesr_eigen_joint_annot <- function(niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, starth2 = 0.01, cutThresh = 1, bOrigin = FALSE, outPrefix = "", samVe = "fixVe", resam_thresh = 1.1, bOutDetail = FALSE, outFreq = 10L, initAnnoSS = 1.0, bOutBeta = FALSE) {
-    .Call(`_SBayesRC_sbayesr_eigen_joint_annot`, niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS, bOutBeta)
+sbayesr_eigen_joint_annot <- function(niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, rmSNPIndices, starth2 = 0.01, cutThresh = 1, bOrigin = FALSE, outPrefix = "", samVe = "fixVe", resam_thresh = 1.1, bOutDetail = FALSE, outFreq = 10L, initAnnoSS = 1.0, bOutBeta = FALSE) {
+    .Call(`_SBayesRC_sbayesr_eigen_joint_annot`, niter, burn, bhat, numAnno, annoStrs, mldmDir, vary, blkN, cgamma, startPi, rmSNPIndices, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS, bOutBeta)
 }
 

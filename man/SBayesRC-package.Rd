@@ -4,9 +4,17 @@
 \name{SBayesRC-package}
 \alias{SBayesRC}
 \alias{SBayesRC-package}
-\title{SBayesRC: SBayesRC method for polygenic prediction}
+\title{SBayesRC: SBayesRC Method for Polygenic Prediction}
 \description{
 This package implemented SBayesRC that incorporates functional annotations with high-density variants for polygenic prediction.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/zhilizheng/SBayesRC}
+  \item Report bugs at \url{https://github.com/zhilizheng/SBayesRC/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Zhili Zheng \email{zhilizheng@outlook.com}

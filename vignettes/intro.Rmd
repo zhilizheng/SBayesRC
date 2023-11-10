@@ -108,7 +108,7 @@ A valid R is required.
 # Run in R to install dependencies
 install.packages(c("Rcpp","data.table","BH","RcppEigen"))
 # Install SBayesRC package
-install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.0/SBayesRC_0.2.0.tar.gz",
+install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.2/SBayesRC_0.2.2.tar.gz",
                  repos=NULL, type="source")
 
 # If R report problem when installing, try alternative package (a bit worse performance)

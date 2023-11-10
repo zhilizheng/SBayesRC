@@ -47,6 +47,12 @@ tidy = function(mafile, LDdir, output, freq_thresh=0.2, N_sd_range=3, rate2pq=0.
         stop("The summary data is not a valid COJO format")
     }
 
+    ma[, p:=as.numeric(p)]
+    ma[, se:=as.numeric(se)]
+    ma[, b:=as.numeric(b)]
+    ma[, N:=as.numeric(N)]
+    ma[, freq:=as.numeric(freq)]
+
     message(nrow(ma), " SNPs in summary data")
 
     ma_val = ma[is.finite(N) & is.finite(b) & is.finite(se) & is.finite(freq) & p>=0 & p<=1]

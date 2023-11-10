@@ -30,7 +30,7 @@ using Eigen::MatrixXd;
 
 
 // [[Rcpp::export]]
-List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0, bool bOutBeta=false){
+List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> bhat, int numAnno, Rcpp::StringVector annoStrs, std::string mldmDir, double vary, Eigen::Map<Eigen::VectorXd> blkN, Eigen::Map<Eigen::VectorXd> cgamma, Eigen::Map<Eigen::VectorXd> startPi, Rcpp::IntegerVector rmSNPIndices, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0, bool bOutBeta=false){
 
     string curSamVe = samVe;
     VectorXf fbhat = bhat.cast<float>();
@@ -43,7 +43,12 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
         annoStrings[i] = annoStrs[i];
     }
 
-    SBayesRC sbr(niter, burn, fbhat, numAnno, annoStrings, mldmDir, vary, n, fgamma, pi, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS);
+    vector<int> v_rmSNPIndices(rmSNPIndices.size());
+    for(int i = 0; i < rmSNPIndices.size(); i++){
+        v_rmSNPIndices[i] = rmSNPIndices[i];
+    }
+
+    SBayesRC sbr(niter, burn, fbhat, numAnno, annoStrings, mldmDir, vary, n, fgamma, pi, v_rmSNPIndices, starth2, cutThresh, bOrigin, outPrefix, samVe, resam_thresh, bOutDetail, outFreq, initAnnoSS);
     sbr.setOutBeta(bOutBeta);
     sbr.mcmc();
 
