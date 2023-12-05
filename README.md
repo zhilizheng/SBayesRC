@@ -100,7 +100,7 @@ A valid R is required.
 install.packages(c("Rcpp", "data.table", "stringi", "BH",  "RcppEigen"))
 
 # Install SBayesRC package
-install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.2/SBayesRC_0.2.2.tar.gz",
+install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.3/SBayesRC_0.2.3.tar.gz",
                  repos=NULL, type="source")
 
 # If R report problem when installing, try alternative version (worse performance and an old version)
@@ -185,6 +185,9 @@ Block Chrom StartBP EndBP
 Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP [StartBP, EndBP). So the genome build version should be consistent between the block defination and the genotype. 
 
 ## News
+### v0.2.3
+* Changed the threshold of outlier detection.
+
 ### v0.2.2
 * Enabled excluding variants by "exclude" flag.
 

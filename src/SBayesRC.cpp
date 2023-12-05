@@ -499,6 +499,24 @@ void SBayesRC::mcmc(){
                 VectorXf betaVals = betasum_all.array() / (iter + 1);
                 VectorXi vDelSNPs = VectorXi::Zero(nBlocks);
                 VectorXi signDelSNPs = VectorXi::Zero(nBlocks);
+                float rate_thresh1 = 0, rate_thresh2 = 0;
+
+                if(iter < 300){
+                    rate_thresh1 = 4.0;
+                    rate_thresh2 = 2.0;
+                }else if(iter < 600){
+                    rate_thresh1 = 3.0;
+                    rate_thresh2 = 1.5;
+                }else if(iter < 900){
+                    rate_thresh1 = 2.0;
+                    rate_thresh2 = 1.3;
+                }else{
+                    rate_thresh1 = 1.5;
+                    rate_thresh2 = 1.1;
+                }
+                //rate_thresh1 = 4.0;
+                //rate_thresh2 = 1.5;
+
                 #pragma omp parallel for schedule(dynamic)
                 for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
                     Ref<const MatrixXf> curQ = blockLDeig.getQ(idxBlk);
@@ -522,7 +540,7 @@ void SBayesRC::mcmc(){
                         float betaVal = betaVals[idx];
                         float rate_b = abs((betaVal - b[idx])/b[idx]);
                         bool sameSign = (b[idx] >= 0.0f) == (betaVal >= 0.0f);
-                        float compare_rate = sameSign ? 2 : 1.1;
+                        float compare_rate = sameSign ? rate_thresh1 : rate_thresh2;
 
                         if(abs(betaVal) > betaThresh && rate_b > compare_rate){
                             //Rcout << "DEL:" << "\t" << betaVal << "\t" << b[idx] << "\t" << rate_b << "\t" << compare_rate << std::endl;
