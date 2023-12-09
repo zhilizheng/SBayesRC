@@ -44,6 +44,7 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 # plink1.9 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
 #        --threads $OMP_NUM_THREADS --out $YOUR_PRS
 ```
+
 ### Inputs
 * `ma_file` is the file of GWAS summary statistics with the following COJO format:
 ```{r, eval=FALSE, indent="   " }
@@ -65,7 +66,23 @@ rs1001 1 0 0 1
 rs1002 1 0 1 0
 rs1003 1 0 0 0
 ```
+**New** we also provide docker version for the users can't install the R package
+```
+# docker image address:  zhiliz/sbayesrc
+# We use Apptainer (formerly Singularity) as an example, the users can also use the container in Docker directly with the mapping volumes
+# same as the previsous example
+ma_file="MA_file"               # GWAS summary in COJO format (the only input)
+ld_folder="YOUR_LD_PATH"        # LD reference (download from "Resources")
+annot="YOUR_ANNOT_FILE"         # Functional annotation (download from "Resources")
+out_prefix="YOUR_OUTPUT_PATH"   # Output prefix, e.g. "./test"
+threads=4                       # Number of CPU cores
 
+# Tidy
+apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder --gwas-summary $ma_file --impute-summary --out ${out_prefix} --threads $threads
+# Main: SBayesRC
+apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder --gwas-summary ${out_prefix}.imputed.ma --sbayes RC --annot $annot --out ${out_prefix} --threads $threads
+
+```
 Note: Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1); binary annotation can be input as 0 and 1 (1 means in the functional category); continous annotation can be input as its raw value. 
 
 ### Outputs
@@ -93,7 +110,8 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-A valid R is required. 
+* Container if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, example shown in the minimal example, no installation required.
+* Install locally: A valid R is required. 
 ```r
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
 # Run in R to install dependencies
