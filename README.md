@@ -44,10 +44,11 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 # plink1.9 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
 #        --threads $OMP_NUM_THREADS --out $YOUR_PRS
 ```
-**New**: we also provided docker version for the users who can't install the R package
+**New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version now.
 ```
 # docker image address:  zhiliz/sbayesrc
-# We use Apptainer (formerly Singularity) as an example, the users can also use the container in Docker directly with the mapping volumes
+# We use Apptainer (formerly Singularity) as an example
+# The users can also use the container in Docker directly with the mapping volumes
 # same as the previsous example
 ma_file="MA_file"               # GWAS summary in COJO format (the only input)
 ld_folder="YOUR_LD_PATH"        # LD reference (download from "Resources")
