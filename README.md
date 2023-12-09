@@ -66,7 +66,7 @@ rs1001 1 0 0 1
 rs1002 1 0 1 0
 rs1003 1 0 0 0
 ```
-**New** we also provide docker version for the users can't install the R package
+**New**: we also provided docker version for the users who can't install the R package
 ```
 # docker image address:  zhiliz/sbayesrc
 # We use Apptainer (formerly Singularity) as an example, the users can also use the container in Docker directly with the mapping volumes
@@ -78,9 +78,12 @@ out_prefix="YOUR_OUTPUT_PATH"   # Output prefix, e.g. "./test"
 threads=4                       # Number of CPU cores
 
 # Tidy
-apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder --gwas-summary $ma_file --impute-summary --out ${out_prefix} --threads $threads
+apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder \
+    --gwas-summary $ma_file --impute-summary --out ${out_prefix} --threads $threads
 # Main: SBayesRC
-apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder --gwas-summary ${out_prefix}.imputed.ma --sbayes RC --annot $annot --out ${out_prefix} --threads $threads
+apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder \
+    --gwas-summary ${out_prefix}.imputed.ma --sbayes RC --annot $annot --out ${out_prefix} \
+    --threads $threads
 
 ```
 Note: Customized annotation should be provided in the same format with the first two columns as SNP and Intercept (all 1); binary annotation can be input as 0 and 1 (1 means in the functional category); continous annotation can be input as its raw value. 
@@ -110,7 +113,7 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-* Container if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, example shown in the minimal example, no installation required.
+* Use container version if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, usage shown in the minimal example above, no installation required.
 * Install locally: A valid R is required. 
 ```r
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
