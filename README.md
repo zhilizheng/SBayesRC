@@ -99,7 +99,7 @@ The outputs share the same name prefix (in the example: ${out\_prefix}\_sbrc):
 
 * Functional per-SNP heritability enrichment (PREFIX.AnnoPerSnpHsqEnrichment): per-SNP heritability enrichment for each annotation, averaged value and standard deviation were reported.
 
-* Proportion of causals in a functional category to the mixture distributions (PREFIX.AnnoJointProb, pi):  component 1 zero effec; 2 small effect; 3 median effect; 4 large effect; 5 very large effect. The pi is the mean value from MCMC iterations.
+* Proportion of causals in a functional category to the mixture distributions (PREFIX.AnnoJointProb, pi):  component 1 zero effec; 2 small effect; 3 medium effect; 4 large effect; 5 very large effect. The pi is the mean value from MCMC iterations.
 
 * MCMC sampling details (PREFIX.mcmcsamples.\*): the value from MCMC iterations after burn-in, at a preset interval (default 10).
 
@@ -113,7 +113,7 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-* Use container version if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, usage shown in the minimal example above, no installation required.
+* Use container version if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, usage shown in the minimal example above. Don't require installation. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`.
 * Install locally: A valid R is required. 
 ```r
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
