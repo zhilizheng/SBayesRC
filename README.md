@@ -47,7 +47,7 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 ## if just one genotype file, input genoCHR=""
 # output="test"
 # Rscript -e "SBayesRC::prs(weight='${out_prefix}_sbrc.txt', genoPrefix='$genoPrefix', \
-                    out='$output', genoCHR='$genoCHR')"
+#                    out='$output', genoCHR='$genoCHR')"
 ## test.score.txt is the polygenic risk score
 
 #################################
@@ -60,10 +60,9 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 # pheno="trait.pheno" # three columns FID IID phenotype, without header
 # outPrefix="tuned_eur_eas"
 # Rscript -e "SBayesRC::sbrcMulti(prs1='$prs1', prs2='$prs2', \
-             outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
+#             outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
 ## weighted PRS in tuned_eur_eas.score.txt
 ## Please don't forget to exclude the tuning sample to calculate the prediction accuracy
-
 ```
 **New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version now.
 ```
