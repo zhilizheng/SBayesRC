@@ -587,10 +587,10 @@ void SBayesRC::mcmc(){
                 //output anno
                 if(bAnnot && (!outPrefix.empty())){
                     anno->computeProb();
-                    //anno->computeEnrichBin(vg_snp_comp, varg2);
                     if(bOutDetail) {
                         anno->computeDist(z, n_comp);
                     }
+                    anno->computeEnrichBin(vg_snp_comp, varg2);
                     anno->computeEnrichQt(vg_snps, varg2);
                     anno->output();
                 }

@@ -2,13 +2,12 @@
 # License: GPL
 # Author: Zhili Zheng <zhilizheng@outlook.com>
 
-
 #' @title LDstep1: generate the LD command line
 #' @usage LDstep1(mafile, genoPrefix, outDir)
 #' @param mafile string, path to the summary file
 #' @param genoPrefix string, path to the genotype, if multiple genotype files, use {CHR} to indicate the chromosome
 #' @param outDir string, folder to save the output (the function will create the folder)
-#' @param genoCHR string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22, means from chr1 to chr22
+#' @param genoCHR string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22,X: means from chr1 to chr22, and chrX
 #' @param blockRef string, reference window file downloaded from our website or customized, the default 4cM window (in GRch37) will be provided if empty
 #' @param tool string, the command line to call the underlying tool (currently gctb), make sure the tool can be run in terminal directly
 #' @param log2file boolean, FALSE: display message on terminal (default); TRUE: redirect to an output file
@@ -21,6 +20,14 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
     if(log2file){
         message("Step1: prepare the script to generate the LD matrix")
     }
+
+    chrInfo = expandCHR(genoPrefix, genoCHR)
+    bMultiCHR = chrInfo$bMultiCHR
+    genoFlag = checkGenoFlag(chrInfo)
+    if(genoFlag != " --bfile "){
+        stop("Only PLINK BED format supporetd")
+    }
+ 
     ma = mafile
     refPos = blockRef
     if(!file.exists(ma)){
@@ -54,30 +61,15 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
 
     dir.create(output)
 
-    bMultiCHR = FALSE
-    if(genoCHR != ""){
-        startchr = as.numeric(stringi::stri_split_fixed(genoCHR, "-", simplify=TRUE)[,1])
-        endchr = as.numeric(stringi::stri_split_fixed(genoCHR, "-", simplify=TRUE)[,2])
-        bMultiCHR = TRUE
-        if(!grepl("\\{CHR\\}", genoPrefix)){
-            stop("genoCHR has the start and end value, however there is no {CHR} in genoPrefix string")
-        }
-    }
-    
+   
     bims = list()
-
-    if(bMultiCHR){
-        for(idx in startchr:endchr){
-            geno1 = stringi::stri_replace_all_fixed(genoPrefix, "{CHR}", idx)
-            bims[[idx]] = fread(paste0(geno1, ".bim"))
-        }
-    }else{
-        bims[[1]] = fread(paste0(genoPrefix, ".bim"))
+    idx = 1
+    for(geno1 in chrInfo$genos){
+        bims[[idx]] = fread(paste0(geno1, ".bim"))
+        idx = idx + 1
     }
 
     bims = rbindlist(bims)
-
-    bims = bims[V2 %in% suma$SNP]
 
     message(nrow(bims), " SNPs in genotype file")
 
@@ -139,7 +131,7 @@ LDstep1 <- function(mafile, genoPrefix, outDir, genoCHR="", blockRef="", tool="g
     setnames(valid_poses, "V1", "chr")
 
     valid_poses[, out:=file.path(outdir, paste0("b", newBlk))]
-    valid_poses[, cmd:=paste0(tool, " --bfile ", genoPrefix, " --chr ", chr, " --extract ", file.path(snpdir, paste0(newBlk, ".snplist")), " --make-full-ldm --out ", out, " &> ", out, ".log")]
+    valid_poses[, cmd:=paste0(tool, genoFlag, genoPrefix, " --chr ", chr, " --extract ", file.path(snpdir, paste0(newBlk, ".snplist")), " --make-full-ldm --out ", out, " &> ", out, ".log")]
 
     if(bMultiCHR){
         valid_poses[, cmd:=stringi::stri_replace_all_fixed(cmd, "{CHR}", chr)]

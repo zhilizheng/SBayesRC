@@ -40,9 +40,24 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 
 ##############################################
 # Polygenic risk score
-## Just a toy demo to calculate the polygenic risk score using plink1.9 (plink2 remove "sum")
-# plink1.9 --bfile $YOUR_GENO_PLINK --score ${out_prefix}_sbrc.txt 1 2 3 header sum center \
-#        --threads $OMP_NUM_THREADS --out $YOUR_PRS
+## Just a toy demo to calculate the polygenic risk score
+# genoPrefix="test_chr{CHR}" # {CHR} means multiple genotype file. If just one genotype, input the full prefix
+# genoCHR="1-22,X" # means {CHR} expands to 1-22 and X, if just one genotype file, input empty ""
+# output="test"
+# Rscript -e "SBayesRC::prs(weight='${out_prefix}_sbrc.txt', genoPrefix='$genoPrefix', out='$output', genoCHR='$genoCHR')"
+## test.score.txt is the polygenic score
+
+#################################
+## SBayesRC multi
+## run each ancestry: summary data and ancestry matched LD, to obtain prs1 and prs2 from the SBayesRC::prs
+# prs1="eur.score.txt"
+# prs2="eas.score.txt"
+# tuneid="tune.id" # two columns FID IID, without header
+# pheno="trait.pheno" # three columns FID IID phenotype, without header
+# outPrefix="tuned_eur_eas"
+# Rscript -e "SBayesRC::sbrcMulti(prs1='$prs1', prs2='$prs2', outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
+## weighted PRS in tuned_eur_eas.score.txt, please don't forget to exclude the tuning sample to calculate the prediction accuracy
+
 ```
 **New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version now.
 ```

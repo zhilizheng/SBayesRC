@@ -4,22 +4,24 @@
 \alias{prs}
 \title{caculate PRS}
 \usage{
-prs(weight, genoPrefix, genoCHR, outprefix)
+prs(weight, genoPrefix, outprefix)
 }
 \arguments{
 \item{weight}{string, path to the SBayesRC genereated weight (.txt)}
 
 \item{genoPrefix}{string, path to the genotype, if multiple genotype files, use {CHR} to indicate the chromosome}
 
-\item{genoCHR}{string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22,X: means from chr1 to chr22, and chrX}
-
 \item{outPrefix}{string, output path}
+
+\item{genoCHR}{string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22,X: means from chr1 to chr22, and chrX}
 
 \item{snplist}{string, path to variant list to be extracted, default "": all variants}
 
 \item{keepid}{string, path to sample id (FID IID) to be kept, default "": all samples}
 
-\item{tool}{string, path to plink2 alpha; default plink2}
+\item{scoreFlag}{string, flag to produce the PRS in PLINK2, default "1 2 3 header center"}
+
+\item{tool}{string, path to plink2 alpha; default plink2. Please note plink1.9 isn't supported (for pgen format)}
 
 \item{log2file}{boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default value is FALSE}
 }

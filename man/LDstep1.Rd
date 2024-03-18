@@ -13,7 +13,7 @@ LDstep1(mafile, genoPrefix, outDir)
 
 \item{outDir}{string, folder to save the output (the function will create the folder)}
 
-\item{genoCHR}{string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22, means from chr1 to chr22}
+\item{genoCHR}{string, if multiple genotype file present, change this to "startCHR-endCHR", e.g., 1-22,X: means from chr1 to chr22, and chrX}
 
 \item{blockRef}{string, reference window file downloaded from our website or customized, the default 4cM window (in GRch37) will be provided if empty}
 
