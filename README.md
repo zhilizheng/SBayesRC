@@ -52,7 +52,8 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 
 #################################
 ## SBayesRC multi
-## run each ancestry: summary data and ancestry matched LD, to obtain prs1 and prs2 from the SBayesRC::prs
+## Run each ancestry: summary data and ancestry matched LD,
+##    to obtain prs1 and prs2 from the SBayesRC::prs
 # prs1="eur.score.txt"
 # prs2="eas.score.txt"
 # tuneid="tune.id" # two columns FID IID, without header
