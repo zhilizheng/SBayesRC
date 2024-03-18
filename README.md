@@ -41,11 +41,14 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 ##############################################
 # Polygenic risk score
 ## Just a toy demo to calculate the polygenic risk score
-# genoPrefix="test_chr{CHR}" # {CHR} means multiple genotype file. If just one genotype, input the full prefix
-# genoCHR="1-22,X" # means {CHR} expands to 1-22 and X, if just one genotype file, input empty ""
+# genoPrefix="test_chr{CHR}" # {CHR} means multiple genotype file.
+## If just one genotype, input the full prefix genoPrefix="test"
+# genoCHR="1-22,X" ## means {CHR} expands to 1-22 and X,
+## if just one genotype file, input genoCHR=""
 # output="test"
-# Rscript -e "SBayesRC::prs(weight='${out_prefix}_sbrc.txt', genoPrefix='$genoPrefix', out='$output', genoCHR='$genoCHR')"
-## test.score.txt is the polygenic score
+# Rscript -e "SBayesRC::prs(weight='${out_prefix}_sbrc.txt', genoPrefix='$genoPrefix', \
+                    out='$output', genoCHR='$genoCHR')"
+## test.score.txt is the polygenic risk score
 
 #################################
 ## SBayesRC multi
@@ -55,8 +58,10 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 # tuneid="tune.id" # two columns FID IID, without header
 # pheno="trait.pheno" # three columns FID IID phenotype, without header
 # outPrefix="tuned_eur_eas"
-# Rscript -e "SBayesRC::sbrcMulti(prs1='$prs1', prs2='$prs2', outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
-## weighted PRS in tuned_eur_eas.score.txt, please don't forget to exclude the tuning sample to calculate the prediction accuracy
+# Rscript -e "SBayesRC::sbrcMulti(prs1='$prs1', prs2='$prs2', \
+             outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
+## weighted PRS in tuned_eur_eas.score.txt
+## Please don't forget to exclude the tuning sample to calculate the prediction accuracy
 
 ```
 **New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version now.
