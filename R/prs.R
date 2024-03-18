@@ -80,10 +80,12 @@ prs <- function(weight, genoPrefix, outPrefix, genoCHR="", snplist="", keepid=""
         system(paste0(tool, genoFlag, refGeno, " --extract ", outFile, ".snplist",  " --score ", weight, " ", scoreFlag, keep, threads, " --memory 4096 --out ", outFile))
         infile = paste0(outFile, ".sscore")
         dt.in = fread(infile, head=TRUE)
-        numMarker = numMarker + dt.in$NMISS_ALLELE_CT
-        sumScore = sumScore + dt.in$SCORE1_AVG * dt.in$NMISS_ALLELE_CT
+        all_cols = colnames(dt.in)
+        colCT = all_cols[grepl("ALLELE_CT", all_cols)]
+        numMarker = numMarker + dt.in[[colCT]]
+        sumScore = sumScore + dt.in$SCORE1_AVG * dt.in[[colCT]]
     }
-    outDT = data.table(FID=dt.in[["#FID"]], IID=dt.in$IID, NMISS_ALLELE_CT=numMarker, SCORE=sumScore)
+    outDT = data.table(FID=dt.in[["#FID"]], IID=dt.in$IID, ALLELE_CT=numMarker, SCORE=sumScore)
     fwrite(outDT, file=paste0(outPrefix, ".score.txt"), quote=F, sep="\t", na="NA")
     message("Done")
 
