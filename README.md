@@ -155,12 +155,12 @@ Note: The package was tested under Linux and macOS (x64 and ARM) platform due to
 ## Resources
 Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
 
-<span style="color:red"> Note: Our resource is down temporary. Use the Google Drive link instead for now. </span>  [link](https://drive.google.com/drive/folders/1uxnxDjRJPzo0dTpFnERS5N2NGZX5S-sU?usp=drive_link). Google Drive can't access via wget or curl, please download in browser. The resources link below will be recovered soon. 
-* [Baseline model 2.2](https://plot.cnsgenomics.com/SBayesRC/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  
-* LD reference: We provide LD data calculated from different UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs. We suggest to download imputed LD same ancestry as the GWAS summary data.  
+**Note: Our resource is down temporary. Use the [Google Drive link](https://drive.google.com/drive/folders/1uxnxDjRJPzo0dTpFnERS5N2NGZX5S-sU?usp=drive_link) instead for now.** Google Drive can't access via wget or curl, please download in browser. The resources link below will be recovered soon.
+* [Baseline model 2.2](https://plot.cnsgenomics.com/SBayesRC/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)).  **Google Drive folder: Annotation**
+* LD reference: We provide LD data calculated from different UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs. We suggest to download imputed LD same ancestry as the GWAS summary data.  **Google Drive folder: LD**
     * Imputed SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEUR_Imputed.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbEAS_Imputed.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/Imputed/ukbAFR_Imputed.zip)
     * HapMap3 SNPs: [EUR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEUR_HM3.zip), [EAS](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbEAS_HM3.zip) and [AFR](https://plot.cnsgenomics.com/SBayesRC/LD/HapMap3/ukbAFR_HM3.zip)
-* Example: [A summary data](https://plot.cnsgenomics.com/SBayesRC/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. 
+* Example: [A summary data](https://plot.cnsgenomics.com/SBayesRC/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. **Google Drive folder: example**
 
 If you have downloaded our resources in previous version, no need to download it again (althrough the format changed).
 
