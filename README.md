@@ -155,13 +155,13 @@ Note: The package was tested under Linux and macOS (x64 and ARM) platform due to
 ## Resources
 Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
 
-* [Baseline model 2.2](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 ([Márquez-Luna 2021](https://doi.org/10.1038/s41467-021-25171-9)). 
+* [Baseline model 2.2](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/Annotation/annot_baseline2.2.zip): functional annotation information for 8M SNPs from baseline model 2.2 (Reference: Márquez-Luna 2021, DOI: 10.1038/s41467-021-25171-9). 
 * LD reference: We provide LD data calculated from different UKB ancestry (EUR, EAS and AFR) in imputed SNPs and HapMap3 SNPs. We suggest to download imputed LD same ancestry as the GWAS summary data. 
     * Imputed SNPs: [EUR](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/Imputed/ukbEUR_Imputed.zip), [EAS](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/Imputed/ukbEAS_Imputed.zip) and [AFR](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/Imputed/ukbAFR_Imputed.zip)
     * HapMap3 SNPs: [EUR](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/HapMap3/ukbEUR_HM3.zip), [EAS](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/HapMap3/ukbEAS_HM3.zip) and [AFR](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/LD/HapMap3/ukbAFR_HM3.zip)
 * Example: [A summary data](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/resources/v2.0/example/example.tar.xz) as an example to try SBayesRC. You can fill the example code with a HapMap3 LD (ukbEUR\_HM3), Baseline 2.2 annotation, and this summary data. 
 
-If you have downloaded our resources in previous version, don't need to download it again (althrough the format changed). If the links above doesn't work, a backup here: [Google Drive link](https://drive.google.com/drive/folders/1uxnxDjRJPzo0dTpFnERS5N2NGZX5S-sU?usp=drive_link)
+If you have downloaded our resources in previous version, don't need to download it again (althrough the format changed). If the links above don't work, a backup here: [Google Drive link](https://drive.google.com/drive/folders/1uxnxDjRJPzo0dTpFnERS5N2NGZX5S-sU?usp=drive_link)
 
 ## Generate LD
 Always try the LD from "Resources" section first. Generate LD If more than 30% SNPs are missing in "tidy" step, or from different SNP panel, different ancestry.
