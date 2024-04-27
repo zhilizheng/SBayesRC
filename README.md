@@ -57,7 +57,7 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 # prs1="eur.score.txt"
 # prs2="eas.score.txt"
 # tuneid="tune.id" # two columns FID IID, without header
-# pheno="trait.pheno" # three columns FID IID phenotype, without header
+# pheno="trait.pheno" # three columns FID IID phenotype, without header, only the samples in tuneid are used 
 # outPrefix="tuned_eur_eas"
 # Rscript -e "SBayesRC::sbrcMulti(prs1='$prs1', prs2='$prs2', \
 #             outPrefix='$outPrefix', tuneid='$tuneid', pheno='$pheno')"
