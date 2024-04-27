@@ -163,6 +163,9 @@ Download the resources and decompress by "unzip" (.zip) or "tar -xvf" (.tar.xz):
 
 If you have downloaded our resources in previous version, don't need to download it again (althrough the format changed). If the links above don't work, a backup here: [Google Drive link](https://drive.google.com/drive/folders/1uxnxDjRJPzo0dTpFnERS5N2NGZX5S-sU?usp=drive_link)
 
+### Summary data and PGS weights
+The summary data for the 28 approximately independent UKB traits analysed in the paper can be downloaded here: [summary data](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/share/v1.0/summary/), and the corresponding PGS weights can be found here: [PGS weights](https://sbayes.pctgplots.cloud.edu.au/data/SBayesRC/share/v1.0/PGS/). The PGS weights are joint effect estimates derived from ~7 million genome-wide SNPs, therefore it’s important to have matched SNP set between training and validation datasets. This is because if some important SNPs present in the training are missing in the validation, the genetic effects captured by these SNPs will be lost. To maximise the utility of the joint SNP weights, we recommend considering genotype imputation or rerunning SBayesRC with the matched set of SNPs. In addition, note that the PGS weights were estimated using samples of the European ancestry, so they will perform best when applying to individuals of the European ancestry.
+
 ## Generate LD
 Always try the LD from "Resources" section first. Generate LD If more than 30% SNPs are missing in "tidy" step, or from different SNP panel, different ancestry.
 
