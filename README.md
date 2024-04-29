@@ -64,7 +64,7 @@ Rscript -e "SBayesRC::sbayesrc(mafile='${out_prefix}_imp.ma', LDdir='$ld_folder'
 ## weighted PRS in tuned_eur_eas.score.txt
 ## Please don't forget to exclude the tuning sample to calculate the prediction accuracy
 ```
-**New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version now.
+**New**: we also provided docker version for the users who can't install the R package. Note: only x86_64 support for container version currently.
 ```
 # docker image address:  zhiliz/sbayesrc
 # We use Apptainer (formerly Singularity) as an example
@@ -83,6 +83,21 @@ apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder \
 apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder \
     --gwas-summary ${out_prefix}.imputed.ma --sbayes RC --annot $annot --out ${out_prefix} \
     --threads $threads
+
+#########################
+# PRS
+## --geno support both PLINK BED and PGEN format
+## test1.txt and test2.txt are weights obtained from SBayesRC
+## if only subset SNPs needed in calculation: --extract snp.list
+## --keep and --extract are optional flags
+# apptainer run docker://zhiliz/sbayesrc --geno test1{CHR} --chr-range 1-22 --score test1.txt --keep keep.id --out prs1
+# apptainer run docker://zhiliz/sbayesrc --geno test1{CHR} --chr-range 1-22 --score test2.txt --keep keep.id --out prs2
+
+# SBayesRC-multi
+## First: get two PRS from each population with --score
+## --keep keep.id is optional flag
+# apptainer run docker://zhiliz/sbayesrc  --sbayesrc-multi prs1.score.txt prs2.score.txt --pheno test.pheno --tuneid tune.id --keep keep.id --out weighted_prs
+
 ```
 ### Inputs
 * `ma_file` is the file of GWAS summary statistics with the following COJO format:
