@@ -417,7 +417,12 @@ void SBayesRC::mcmc(){
         for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
             float curParam = Ve_param[idxBlk];
             if(curParam > 0){
-                vare[idxBlk] = InvChiSq::sample(blockLDeig.getq(idxBlk) + nue, curParam);
+                float sample1 = InvChiSq::sample(blockLDeig.getq(idxBlk) + nue, curParam);
+                if(sample1 / vary > 0.7){
+                    vare[idxBlk] = sample1; 
+                }else{
+                    vare[idxBlk] = vary;
+                }
             }else{
                 vare[idxBlk] = vary;
             }
