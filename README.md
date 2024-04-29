@@ -148,7 +148,7 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-* Use container version if your cluster supports Docker or Apptainer (formerly Singularity), image address: `zhiliz/sbayesrc`. It's a good practise to include the version when run, e.g.,  `zhiliz/sbayesrc:0.2.5`, we will maintain the docker version same to R version; however, the version can be ommited. The image doesn't require any installation, it integrates all depencencies into the image, including R, PLINK and GCTB. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`. The default wrapper has the function to SBayesRC, LD generating, PRS, and SBayesRC-Multi, type `apptainer run docker://zhiliz/sbayesrc` for document and examples (full document included). The exmaple shown above in this tutorial is also a good start. If you need other parameters that were not provided by our wrapper script, you can pass your own R script directly, by run `apptainer exec docker://zhiliz/sbayesrc Rscript YOUR_SCRIPT`. It's also possible to create your own docker image to include own script, by *FROM* keyword and refer to our image. 
+* Container version. Use container version if your cluster supports Docker or Apptainer (formerly Singularity), image address: `zhiliz/sbayesrc`. It's a good practise to include the version when run, e.g.,  `zhiliz/sbayesrc:0.2.5`, we will maintain the docker version same to R package version; however, the version can be ommited. The image doesn't require any installation, it integrates all depencencies, including R, PLINK and GCTB. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`. The default wrapper has the function to SBayesRC, LD generating, PRS, and SBayesRC-Multi, type `apptainer run docker://zhiliz/sbayesrc` for document and examples. The exmaple shown above in this tutorial is also a good start. If you need other parameters that were not provided by our wrapper script, you can pass your own R script directly, by run `apptainer exec docker://zhiliz/sbayesrc Rscript YOUR_SCRIPT`. It's also possible to create your own docker image to include your own script, by *FROM* keyword in Dockerfile and refer to our image. 
   
 * Install locally: A valid R is required. 
 ```r
@@ -274,5 +274,5 @@ Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder 
 Report issue to GitHub repository ([https://github.com/zhilizheng/SBayesRC](https://github.com/zhilizheng/SBayesRC)) by using the "Issues" feature.
 
 ### Known issues from system:
-
-Ubuntu 22.04, has a broken openBLAS version 0.3.20.  If you generate the LD (or just perform PCA in R for your other analysis), the matrix is incorrect. 
+* Ubuntu 22.04 has a broken openBLAS version 0.3.20.  If you generate the LD and decomposition (or just perform PCA in R for your other analysis), the matrix is incorrect. Our container image is based on Ubuntu 24.04, which has fixed the problem. We tested various LTS version, and found only Ubuntu 22.04 was affected by this openBLAS bug.
+* Apptainer will load your local packages in R, if you find the SBayesRC verion is not the one expected, delete the "~/R/x86_64-pc-linux-gnu-library/4.3/SBayesRC" in your local machine (or other libPaths shown in your local R). 
