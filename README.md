@@ -133,7 +133,8 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-* Use container version if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, usage shown in the minimal example above. Don't require installation. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`.
+* Use container version if your cluster support Docker or Apptainer (formerly Singularity): Docker image: `zhiliz/sbayesrc`, usage shown in the minimal example above. Don't require installation. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`. The default wrapper has the function to SBayesRC, LD generating, PRS, and SBayesRC-Multi, type `apptainer run docker://zhiliz/sbayesrc` for document and examples (full document included). If you need other parameters that was not provided by our wrapper script, pass your R script, and run by Rscript YOUR_SCRIPT. 
+  
 * Install locally: A valid R is required. 
 ```r
 # Suggest: enable faster backend BLAS for R, e.g. openBlas, MKL
@@ -141,7 +142,7 @@ Runtime with 4 CPU cores:
 install.packages(c("Rcpp", "data.table", "stringi", "BH",  "RcppEigen"))
 
 # Install SBayesRC package
-install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.4/SBayesRC_0.2.4.tar.gz",
+install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.5/SBayesRC_0.2.5.tar.gz",
                  repos=NULL, type="source")
 
 # If R report problem when installing, try alternative version (worse performance and an old version)
@@ -230,8 +231,10 @@ Block Chrom StartBP EndBP
 Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP [StartBP, EndBP). So the genome build version should be consistent between the block defination and the genotype. 
 
 ## News
+### v0.2.5
+* Enhanced robustness when the meta-ed summary data has error
 ### v0.2.4
-* Fix bug and add functions to caculate PRS and SBayesRC-multi
+* Fixed bug and add functions to caculate PRS and SBayesRC-multi
 
 ### v0.2.3
 * Changed the threshold of outlier detection.
