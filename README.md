@@ -268,7 +268,7 @@ Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP
 * Updated document with more details (?function in R)
 
 ## Citation
-Zheng Z, Liu S, Sidorenko, J, Yengo L, Turley P, Ani A, Wang R, Nolt I, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2022) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. bioRxiv 2022.10.12.510418; doi: https://doi.org/10.1101/2022.10.12.510418
+Zheng Z, Liu S, Sidorenko J, Wang Y, Lin T, Yengo L, Turley P, Ani A, Wang R, Nolte IM, Snieder H, Lifelines Cohort Study, Yang J, Wray NR, Goddard ME, Visscher PM, Zeng J. (2024) Leveraging functional genomic annotations and genome coverage to improve polygenic prediction of complex traits within and between ancestries. [Nature Genetics, doi:10.1038/s41588-024-01704-y](https://doi.org/10.1038/s41588-024-01704-y)
 
 ## Bug report
 Report issue to GitHub repository ([https://github.com/zhilizheng/SBayesRC](https://github.com/zhilizheng/SBayesRC)) by using the "Issues" feature.
