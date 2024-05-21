@@ -100,9 +100,9 @@ apptainer run docker://zhiliz/sbayesrc --ldm-eigen $ld_folder \
 
 ```
 ### Inputs
-Note: We suggested to use the TAB delimited files for GWAS summary statistics and annotation, although from our testing, space and comma also works. However, there were various reports that other delimiter works bad. (For test, use the fread function in data.table R package)
+Note: We suggested to use the TAB delimited files for GWAS summary statistics and annotation, although from our testing, space and comma also works. However, there were various reports that other delimiter works bad. (For test, use the fread function in data.table R package).
 
-* `ma_file` is the file of GWAS summary statistics with the following COJO format:
+* `ma_file` is the file of GWAS summary statistics with the following COJO format (original scale without standardization for b and se):
 ```{r, eval=FALSE, indent="   " }
 SNP A1 A2 freq b se p N
 rs1001 A G 0.8493 0.0024 0.0055 0.6653 129850
