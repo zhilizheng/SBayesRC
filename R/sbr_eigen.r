@@ -45,7 +45,10 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
                     gamma=c(0, 0.001, 0.01, 0.1, 1), 
                     method="sbr_ori", sSamVe="allMixVe", twopq="nbsq",
                     bOutDetail=FALSE, resam_thresh=1.1, seed=22, 
-                    outFreq=10, annoSigmaScale=1.0, bOutBeta=FALSE, exclude=''){
+                    outFreq=10, annoSigmaScale=1.0, bOutBeta=TRUE, exclude=''){
+
+    original_options <- options()
+
     file_summary = mafile
     ld_folder = LDdir
     file_out = outPrefix
@@ -236,12 +239,17 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
     snp = ma_ord$SNP
     a1 = info$A1
 
+
+    ## create dir
+    mcmcDir = paste0(outfile, ".mcmcsamples")
+    dir.create(mcmcDir, showWarnings = FALSE)
+
     ### annot
 
     annoMat = matrix(0, ncol=0, nrow=0)
     numAnno = 0
     annoStrings = c("")
-    tempFileAnnot = paste0(outfile, ".annot.tmp.bin")
+    tempFileAnnot = file.path(mcmcDir, "SBayesRC.annot.tmp.bin")
     if(bAnnot){
         anno = fread(fileAnnot, head=TRUE)
 
@@ -284,7 +292,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("Generating pseudo-summary...")
         ma_ord[, bhat:=bhat]
         pseudoSuma(ma_ord, ld_folder)
-        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat, bhat_t, bhat_v, n_train, n_val, bt_add, factor)], file=paste0(outfile, "_tune_inter.txt"), sep="\t", na="NA", quote=F)
+        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat, bhat_t, bhat_v, n_train, n_val, bt_add, factor)], file=file.path(mcmcDir, paste0("SBayesRC_tune_inter.txt")), sep="\t", na="NA", quote=F)
 
         dt.n = ma_ord[, list(N=mean(n_train)), by=blk][order(blk)]
         n_train = as.numeric(dt.n$N)
@@ -301,10 +309,10 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("Perform tuning...")
         dt.tune = data.table()
         for(tune_thresh in tuneStep){
-            curFile = paste0(outfile, "_tune", tune_thresh)
+            curFile = file.path(mcmcDir, paste0("SBayesRC_tune", tune_thresh))
             message("--------------------------------")
             message("Tune with parameter ", tune_thresh)
-            res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, rmSNPIndices, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+            res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, rmSNPIndices, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, FALSE, outFreq, annoSigmaScale, FALSE)
             saveRDS(res, file=paste0(curFile, ".rds"))
 
             dt.tune = rbind(dt.tune, data.table(thresh=tune_thresh, r=(t(res$betaMean) %*% bhat_v)[1] / sqrt(sum(res$betaMean^2))))
@@ -313,9 +321,17 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         }
 
         dt.tune$rel_r = abs(dt.tune$r / dt.tune[thresh=="0.995"]$r)
-        fwrite(dt.tune, file=paste0(outfile, "_tune.txt"), sep="\t", quote=F, na="NA")
+        fwrite(dt.tune, file=file.path(mcmcDir, paste0("SBayesRC_tune.txt")), sep="\t", quote=F, na="NA")
+        message("Tuning information:")
+        options(digits = 3)        
+        print(dt.tune)
+        options(original_options)
+        dt.tune = dt.tune[is.finite(r) & is.finite(rel_r)]
 
-        message("Tuning Done")
+        if(nrow(dt.tune) == 0){
+            stop("Invalid tune outputs, all correlations are invalid number. The input data has problem.\nPlease perform QC on summary data.\nYou can still run without tuning by passing bTune=FALSE and set a proper threshold by thresh={value among 0~1}")
+        }
+
         if(all(dt.tune$r < 0)){
             stop("All correlations are negative, this may indicate errors in summary data. \nPlease perform QC on summary data.\nYou can still run without tuning by passing bTune=FALSE and set a proper threshold by thresh={value among 0~1}")
         }
@@ -340,7 +356,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
 
         message("Continue with best eigen variance cutoff: ", thresh)
         if(bTunePrior){
-            dt = readRDS(paste0(outfile, "_tune", thresh, ".rds"))
+            dt = readRDS(file.path(mcmcDir, paste0("SBayesRC_tune", thresh, ".rds")))
             startPi = dt$pi_hist[nrow(dt$pi_hist), ]
             starth2 = tail(dt$hsq_hist, 1)
             rm(dt)
@@ -359,7 +375,8 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, outfile, cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, file.path(mcmcDir, "SBayesRC"), cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+        res[["scale"]] = ord_std
         saveRDS(res, file=outRes)
     }
 
@@ -369,20 +386,30 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
 
     message("MCMC cycles completed.")
 
-    out = data.table(SNP=snp, A1=a1, BETA=res$betaMean * ord_std, PIP=(1 - res$pip[,1]),  BETAlast=res$betaLast * ord_std)
+    out = data.table(SNP=snp, A1=a1, BETA=res$betaMean * ord_std, SE=res$betaSD * ord_std, PIP=(1 - res$pip[,1]),  BETAlast=res$betaLast * ord_std)
     fwrite(out, file=paste0(outfile, ".txt"), sep="\t", na="NA", quote=FALSE)
     message("Use the ", outfile, ".txt, column 1 2 3 to calculate the polygenic risk score.")
 
     message("------------------------------------------")
     message("Parameter estimation:")
-    print(res$par)
 
-    out.par = data.table(name=names(res$par), value=res$par)
-    fwrite(out.par, file=paste0(outfile, ".par"), sep="\t", na="NA", quote=FALSE, col.names=FALSE)
+    out.par = data.table(Item=names(res$par), Mean=res$par, SD=res$sd_par)
+
+    mat_nsnps = res$n_comp_hist[(burn+1):niter, -1]
+    out.par = rbind(out.par, data.table(Item=paste0("NumSnp", 2:5), Mean=colMeans(mat_nsnps), SD=apply(mat_nsnps, 2, sd)))
+
+    mat_vgs = res$vg_comp_hist[(burn+1):niter, -1]
+    out.par = rbind(out.par, data.table(Item=paste0("Vg", 2:5), Mean=colMeans(mat_vgs), SD=apply(mat_vgs, 2, sd)))
+
+    fwrite(out.par, file=paste0(outfile, ".par"), sep="\t", na="NA", quote=FALSE)
+
+    options(digits = 2)
+    print(out.par, row.names = FALSE)
+    options(original_options)
 
    if(numAnno != 0){
        # per-SNP heritability
-       curDT = fread(paste0(outfile, ".mcmcsamples.AnnoPerSnpHsqEnrichment"), sep=" ")
+       curDT = fread(file.path(mcmcDir, paste0("SBayesRC.mcmcsamples.AnnoPerSnpHsqEnrichment")), sep=" ")
        curMean = colMeans(curDT)
        curSD = sapply(curDT, sd)
        outDT = data.table(Annotation = names(curMean), Enrich = curMean, SD = curSD)
@@ -391,7 +418,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
        # comp pi
        outDTs = data.table()
        for(curComp in 1:nComp){
-           curDT = fread(paste0(outfile, ".mcmcsamples.AnnoJointProb_pi", curComp), sep=" ")
+           curDT = fread(file.path(mcmcDir, paste0("SBayesRC.mcmcsamples.AnnoJointProb_pi", curComp)), sep=" ")
            curMean = colMeans(curDT)
            outDT = data.table(Comp=curComp, Gamma=gamma[curComp])
            outDTs = rbind(outDTs, cbind(outDT, t(curMean)))
@@ -401,12 +428,16 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
 
     message("Analysis finished: ", Sys.time())
     runtime = proc.time()
-    message("Computational time: ", runtime["elapsed"], " seconds")
+    message("Computational time: ", round(runtime["elapsed"] / 3600, 2), " hour(s)")
     logger.end()
     if(log2file){
         message("Use the ", outfile, ".txt, column 1 2 3 to calculate the polygenic risk score.")
         message("Parameter estimation:")
-        print(res$par)
+
+        options(digits = 2)
+        print(out.par, row.names = FALSE)
+        options(original_options)
+
         message("Analysis finished: ", Sys.time())
         message("Computational time: ", round(runtime["elapsed"] / 3600, 2), " hour(s)")
     }
@@ -430,4 +461,64 @@ pseudoSuma <- function(suma, ldm){
     suma[, factor := sqrt(1/n_train - 1/N)]
     suma[, bhat_t := bhat + factor * bt_add]
     suma[, bhat_v := (bhat * N - bhat_t * n_train) / n_val]
+}
+
+#' @title extract MCMC beta
+#' @usage extractMCMCEff(prefix, idx, wPrefix, scale)
+#' @param prefix string, output prefix
+#' @param idx, index of MCMC to extract
+#' @param wFile, output weight file
+#' @param scale, orginal scale (TRUE) or standardized scale (FALSE)
+#' @return no return value, will be output to wFile (SNP, A1, BETA)
+#' @export
+extractMCMCEff <- function(prefix, idx, wFile, scale=TRUE){
+    mcmcDir = paste0(prefix, ".mcmcsamples")
+    filename = file.path(mcmcDir, "SBayesRC.beta.bin")
+    if(!file.exists(filename)){
+        stop("cannot find ", filename)
+    }
+
+    txtFile = paste0(prefix, ".txt")
+    if(!file.exists(txtFile)){
+        stop("cannot find ", txtFile)
+    }
+ 
+    rmIdx = file.path(mcmcDir, "SBayesRC.rm.snpidx")
+    rmIndex = c()
+    if(file.exists(rmIdx)){
+        rmIndex = as.integer(readLines(rmIdx))
+        message(length(rmIndex), " removed in the MCMC iterations")
+    }
+
+    fp = file(filename, 'rb')
+    nr = readBin(fp, "integer", size=4, 1)
+    nc = readBin(fp, "integer", size=4, 1)
+
+    nRow = readBin(fp, "integer", size=4, nr)
+
+    start = seek(fp)
+
+    cRow = c(0, cumsum(nRow)*8)
+
+    if(idx > nr){
+        stop(idx, " is larger than number of saved MCMC iterations (", nr, ")")
+    }
+    seek(fp, start + cRow[idx])
+    indices = (readBin(fp, "integer", size=4, nRow[idx])) + 1
+    value = readBin(fp, "numeric", size=4, nRow[idx])
+    close(fp)
+
+    dt.txt = fread(txtFile)
+    dt.use = dt.txt[, .(SNP, A1)]
+    dt.use[, BETA:=0]
+    dt.use[indices, BETA:=value]
+    if(scale){
+        rds = readRDS(paste0(prefix, ".rds"))
+        dt.use[, BETA:=BETA * rds$scale]
+    }
+    if(length(rmIndex) != 0){
+        dt.use[rmIndex+1, BETA:=0]
+    }
+    fwrite(dt.use, file=wFile, sep="\t", quote=FALSE, na="NA")
+    message("Done")
 }

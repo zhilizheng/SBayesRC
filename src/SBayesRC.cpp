@@ -37,6 +37,7 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     this->curSamVe = samVe;
     this->fgamma = fgamma;
     this->outFreq = outFreq;
+    this->thinFreq = outFreq;
     this->b = fbhat;
 
     int nMarker = fbhat.size();
@@ -91,8 +92,10 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     Rcout << "Number of distributions: " << ndist << std::endl;
 
     beta = VectorXf::Zero(m);
-    betasum = VectorXf::Zero(m);
+    //betasum = VectorXf::Zero(m);
     betasum_all = VectorXf::Zero(m);
+    betamean = VectorXf::Zero(m);
+    betaM2 = VectorXf::Zero(m);
 
     // history
     hsq_mcmc = VectorXf::Zero(niter);
@@ -102,10 +105,11 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     vg_comp_mcmc = MatrixXf::Zero(niter, ndist);
 
     // iteration infos
-    iter_infos.resize((niter - burn)/outFreq, 6);
-    vare_infos.resize((niter - burn)/outFreq, nBlocks);
-    ssq_infos.resize((niter - burn)/outFreq, nBlocks);
-    hsq_infos.resize((niter - burn)/outFreq, nBlocks);
+    thinIter = (niter - burn) / thinFreq;
+    iter_infos.resize(thinIter, 6);
+    vare_infos.resize(thinIter, nBlocks);
+    ssq_infos.resize(thinIter, nBlocks);
+    hsq_infos.resize(thinIter, nBlocks);
     pip_count = MatrixXf::Zero(m, ndist);
 
     VectorXf abs_b = fbhat.array().abs();
@@ -139,8 +143,46 @@ SBayesRC::SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, vector<stri
     }
 }
 
+const int index_size = sizeof(uint32_t);
+const int value_size = sizeof(float);
+
 void SBayesRC::setOutBeta(bool bOut){
     this->bOutBeta = bOut;
+    if(bOutBeta){
+        this->fpBeta = fopen((outPrefix + ".beta.bin").c_str(), "wb");
+        if(!fpBeta){
+            Rcout << "Error: can't open [" << outPrefix << ".beta.bin] for writing" << std::endl;
+            throw("ERROR");
+        }
+        uint32_t size[2] = {thinIter, m};
+        fwrite(size, sizeof(uint32_t), 2, fpBeta);
+
+        head_byte = 2 * index_size;
+        content_byte = head_byte + thinIter * index_size;
+        fseek(fpBeta, content_byte, SEEK_SET);
+    }
+}
+
+void SBayesRC::writeBeta(const VectorXf& beta, int curIter){
+    int curIterThin = (curIter - burn) / thinFreq;
+
+    Eigen::SparseVector<float> sparse_vec = beta.sparseView();
+    uint32_t curRow = sparse_vec.nonZeros();
+    if(fwrite(sparse_vec.innerIndexPtr(), index_size, curRow, fpBeta) != curRow){
+        Rcout << "Error: can't write index to MCMC beta values" << std::endl;
+        throw("ERROR");
+    }
+    if(fwrite(sparse_vec.valuePtr(), value_size, curRow, fpBeta) != curRow){
+        Rcout << "Error: can't write value to MCMC beta values" << std::endl;
+        throw("ERROR");
+    }
+    long curPos = ftell(fpBeta);
+
+    fseek(fpBeta, head_byte + curIterThin * index_size, SEEK_SET);
+    fwrite(&curRow, sizeof(uint32_t), 1, fpBeta);
+
+    fseek(fpBeta, curPos, SEEK_SET);
+
 }
 
 void SBayesRC::mcmc(){
@@ -328,12 +370,15 @@ void SBayesRC::mcmc(){
             betasum_all = betasum_all + beta;
         //}
         if(iter >= burn) {
-            betasum = betasum + beta;
+            //betasum = betasum + beta;
+            VectorXf delta = beta - betamean;
+            betamean = betamean.array() + delta.array() / (iter - burn + 1);
+            betaM2 = betaM2.array() + delta.array() * (beta.array() - betamean.array());
             pip_count = pip_count + cur_causal;
             if(bOutBeta){
-                ofstream outs((outPrefix + ".beta" + to_string(iter+1) + ".txt").c_str());
-                outs << beta << std::endl;
-                outs.close();
+                if(!((iter+1) % thinFreq)){
+                    writeBeta(beta, iter);
+                }
             }
         }
 
@@ -552,7 +597,9 @@ void SBayesRC::mcmc(){
                             float adj_wcorr = beta[idx];
                             wcorr = wcorr + curQi * adj_wcorr;
                             beta[idx] = 0;
-                            betasum[idx] = 0;
+                            betamean[idx] = 0;
+                            betaM2[idx] = 0;
+                            pip_count.row(idx).setZero();
                             betasum_all[idx] = 0;
                             delSNP.insert(idx);
                             vDelSNPs[idxBlk] += 1;
@@ -571,7 +618,7 @@ void SBayesRC::mcmc(){
                     string vg_temp1 = vg_temp0.substr(0, vg_temp0.find(".") + 3 + 1);
                     vg_str = vg_str + "vg" + to_string(i+1) + "=" + vg_temp1 + ", ";
                 }
-                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, flipSign=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), signDelSNPs.sum(),t100); 
+                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), t100); 
 
                 //Rcout << "ProbDelta Mean: " << probDeltas.mean() << std::endl;
                 timer.start("sbrc");
@@ -612,24 +659,42 @@ void SBayesRC::mcmc(){
        delete anno;
    }
 
-
+   if(bOutBeta){
+       fclose(fpBeta);
+   }
 }
 
 VectorXd SBayesRC::get_mean_par_vec(){
-    return  iter_infos.colwise().sum() / iter_infos.rows();
+    return  iter_infos.colwise().mean();
 }
+
+VectorXd SBayesRC::get_sd_par_vec(){
+    VectorXd colMean = get_mean_par_vec();
+    MatrixXd centered = iter_infos.rowwise() - colMean.transpose();
+    VectorXd colVariance = (centered.array().square().colwise().sum()) / (iter_infos.rows() - 1);
+    return colVariance.array().sqrt();
+}
+
 
 VectorXf SBayesRC::get_betaMean_vec(){
     return betasum.array() / (niter - burn);
 }
 
+VectorXf SBayesRC::get_betaMean_dir(){
+    return betamean;
+}
+
+VectorXf SBayesRC::get_betaSD_dir(){
+    return (betaM2.array() / (niter - burn - 1)).sqrt();
+}
+
 VectorXf SBayesRC::get_betaMean2_vec(){
-    return betasum2.array() / ((niter - burn)/outFreq);
+    return betasum2.array() / (thinIter);
 }
 
 
 VectorXf SBayesRC::get_betaMean3_vec(){
-    return betasum3.array() / ((niter - burn)/(outFreq / 2));
+    return betasum3.array() / (thinIter * 2);
 }
 
 VectorXf SBayesRC::get_hsq_mcmc(){
@@ -661,11 +726,11 @@ MatrixXf SBayesRC::get_pip(){
 }
 
 MatrixXf SBayesRC::get_pip2(){
-    return pip_count2.array() / ((niter - burn)/outFreq);
+    return pip_count2.array() / (thinIter);
 }
 
 MatrixXf SBayesRC::get_pip3(){
-    return pip_count3.array() / ((niter - burn)/(outFreq / 2));
+    return pip_count3.array() / (thinIter * 2);
 }
 
 MatrixXd SBayesRC::get_vare_infos(){

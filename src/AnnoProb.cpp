@@ -355,17 +355,19 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
     // get the XPX inverse
     XPXiSD.resize(numAnno);
     XPXqiSD.resize(numAnno);
+    vector<int8_t> invalXPXqiSD(numAnno, 0);
 
     #pragma omp parallel for schedule(dynamic)
     for(int i = 0; i < numAnno; i++){
         float XPX = annoMat.col(i).dot(annoMat.col(i));
         if(XPX < 1e-6){
-            Rcout << "Annotation column " << i+1 << " has too small XPX: " << XPX << ", please remove this column from annotation data or perform re-scale." <<std::endl;
-            throw("Error");
+            XPXiSD[i] = -100;
+            continue;
         }
         if(bAnnoBinary[i]){
             XPXiSD[i] = 1.0 / XPX * annoSD[i];
         }else{
+            XPXiSD[i] = 0.0;
             Matrix2f temp;
             temp(0, 0) = numSnps;
             temp(1, 1) = XPX;
@@ -373,14 +375,47 @@ AnnoProb::AnnoProb(string fileAnnot, int numAnno, const VectorXf &Pi, MatrixXf &
             temp(1, 0) = temp(0, 1);
             Eigen::FullPivLU<Matrix2f> lu(temp);
             if(!lu.isInvertible()){
-                Rcout << "Annotation column " << i+1 << " can't be inverted, please remove this column from annotation data." <<std::endl;
-                throw("Error");
+                invalXPXqiSD[i] = 1;
+            }else{
+                XPXqiSD[i] = lu.inverse().array() * annoSD[i];
             }
-            XPXqiSD[i] = lu.inverse().array() * annoSD[i];
         }
     }
     Rcout << "Total annotation category (including intercept): " << numAnno << "." << std::endl;
     Rcout << "Number of binary annotation: " << numBinary << ", quantitative annotation: " << numQT << "." << std::endl;
+
+    string outSmallXPX = "";
+    for(int i = 0; i < numAnno; i++){
+        if(XPXiSD[i] < 0){
+            outSmallXPX += to_string(i+2) + ",";
+        }
+    }
+
+    string outNoInvert= "";
+    for(int i = 0; i < numAnno; i++){
+        if(XPXiSD[i] >= 0 && invalXPXqiSD[i] == 1){
+            outNoInvert += to_string(i+2) + ",";
+        }
+    }
+
+
+    bool noError = true;
+    if(!outSmallXPX.empty()){
+        outSmallXPX.pop_back();
+        Rcout << "Annotation column(s) " << outSmallXPX << " have too small XPX, please remove this column from annotation data or perform re-scale." <<std::endl;
+        noError = false;
+    }
+
+    if(!outNoInvert.empty()){
+        outNoInvert.pop_back();
+        Rcout << "Annotation column(s) " << outNoInvert << " can't be inverted, please remove this column from annotation data." <<std::endl;
+        noError = false;
+    }
+
+    if(!noError){
+        Rcout << "The column number listed included the 'SNP' column in the annotation file (i.e., SNP is the 1st column, Intercept is the 2nd column)." << std::endl;
+        throw("error");
+    }
 
     invFrac = numSnps * 1.0 / annoMat.colwise().sum().array();
 

@@ -57,11 +57,22 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
     // return 
     VectorXd mean_par_vec = sbr.get_mean_par_vec();
     NumericVector mean_par(mean_par_vec.data(), mean_par_vec.data() + mean_par_vec.size());
-    mean_par.attr("names") = CharacterVector::create("hsq", "nnz", "sigmaSq", "ssq", "vare", "varg");
+    mean_par.attr("names") = CharacterVector::create("hsq", "nnz", "SigmaSq", "ssq", "Var_e", "Var_g");
 
-    VectorXf betaMean_vec = sbr.get_betaMean_vec();
-    NumericVector betaMean(betaMean_vec.data(), betaMean_vec.data()+betaMean_vec.size());
+    VectorXd sd_par_vec = sbr.get_sd_par_vec();
+    NumericVector sd_par(sd_par_vec.data(), sd_par_vec.data() + sd_par_vec.size());
+    sd_par.attr("names") = CharacterVector::create("hsq", "nnz", "SigmaSq", "ssq", "Var_e", "Var_g");
 
+
+    //VectorXf betaMean_vec = sbr.get_betaMean_vec();
+    //NumericVector betaMean(betaMean_vec.data(), betaMean_vec.data()+betaMean_vec.size());
+
+    VectorXf betaMean2_vec = sbr.get_betaMean_dir();
+    NumericVector betaMean2(betaMean2_vec.data(), betaMean2_vec.data()+betaMean2_vec.size());
+
+    VectorXf betaSD2_vec = sbr.get_betaSD_dir();
+    NumericVector betaSD2(betaSD2_vec.data(), betaSD2_vec.data()+betaSD2_vec.size());
+ 
     VectorXf hsq_mcmc = sbr.get_hsq_mcmc();
     VectorXf hsq2_mcmc = sbr.get_hsq2_mcmc();
     NumericVector hsq_mcmc_r(hsq_mcmc.data(), hsq_mcmc.data() + hsq_mcmc.size());
@@ -87,7 +98,9 @@ List sbayesr_eigen_joint_annot(int niter, int burn, Eigen::Map<Eigen::VectorXd> 
     NumericVector sigmaAnno_r(sigmaAnno.data(), sigmaAnno.data() + sigmaAnno.size());
  
     return(List::create(_["par"]=mean_par, 
-                _["betaMean"] = betaMean, 
+                _["sd_par"] = sd_par,
+                _["betaMean"] = betaMean2, 
+                _["betaSD"] = betaSD2,
                 _["betaLast"] = beta_last_r,
                 _["hsq_hist"] = hsq_mcmc_r, 
                 _["ssq_hist"] = hsq2_mcmc_r, 

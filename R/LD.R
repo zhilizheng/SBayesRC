@@ -330,3 +330,28 @@ LDstep4 <- function(outDir, log2file=FALSE){
         message("The LD is completed!")
     }
 }
+
+#' @title read eigen matrix
+#' @usage readEig(ldDir, block)
+#' @param ldDir string, path to LD
+#' @param block integer, # block to read
+#' @return list: m: number of marker, k: rank; sumLambda: sum of orginal lambda; thresh: cut threshold; labmda and U from eigen decompostion
+#' @export
+readEig <- function(ldDir, block){
+    ldfile = file.path(ldDir, paste0("block", block, ".eigen.bin"))
+    if(!file.exists(ldfile)){
+        stop("can not find LD file", ldfile)
+    }
+
+    hLD = file(ldfile, "rb")
+    m  = readBin(hLD, integer(), n=1, size=4)
+    k = readBin(hLD, integer(), n=1, size=4)
+    sumLambda = readBin(hLD, numeric(), n=1, size=4)
+    thresh = readBin(hLD, numeric(), n=1, size=4)
+    lambda = readBin(hLD, numeric(), n=k, size=4)
+    mat = readBin(hLD, numeric(), n=m*k, size=4)
+    dim(mat) = c(m, k)
+    close(hLD)
+
+    return(list(m=m, k=k, sumLambda=sumLambda, thresh=thresh, lambda=lambda, U=mat))
+}

@@ -28,9 +28,12 @@ public:
     SBayesRC(int niter, int burn, VectorXf fbhat, int numAnno, std::vector<string> &annoStrs, std::string mldmDir, double vary, VectorXf n, VectorXf fgamma, VectorXf pi, const std::vector<int> &rmSNPIndices, double starth2=0.01, double cutThresh=1, bool bOrigin = false, std::string outPrefix="", std::string samVe = "fixVe", double resam_thresh=1.1, bool bOutDetail=false, int outFreq=10, double initAnnoSS=1.0);
     void mcmc();
     VectorXd get_mean_par_vec();
+    VectorXd get_sd_par_vec();
     VectorXf get_betaMean_vec();
     VectorXf get_betaMean2_vec();
     VectorXf get_betaMean3_vec();
+    VectorXf get_betaMean_dir();
+    VectorXf get_betaSD_dir();
     VectorXf get_hsq_mcmc();
     VectorXf get_hsq2_mcmc();
     VectorXf get_beta();
@@ -52,6 +55,7 @@ private:
     int ndist;  // number of mixture distribution components
     int m; // number of marker
     int nBlocks; // number of blocks
+    int thinIter;
     VectorXf vare; // residual
     float varg; // Genetic variance
     float vary; // phenotypic variance
@@ -75,10 +79,14 @@ private:
     std::vector<std::set<int>> delSNPs;
     VectorXf beta; // joint beta
     VectorXf betasum; // sum of beta
+    VectorXf betamean; // mean of beta
+    VectorXf betaM2; // M2
     VectorXf betasum_all; // sum of beta all iter
     VectorXf betasum2; // sum of beta2
     VectorXf betasum3; // sum of beta3
     bool bOutBeta = false;
+    FILE* fpBeta = NULL;
+    
                       //
     int niter;
     int burn;
@@ -96,6 +104,7 @@ private:
 
     // out put history
     int outFreq = 10;
+    int thinFreq = 10;
     MatrixXd iter_infos;
     MatrixXd vare_infos;
     MatrixXd ssq_infos;
@@ -103,6 +112,9 @@ private:
     MatrixXf pip_count;
     MatrixXf pip_count2;
     MatrixXf pip_count3;
+    void writeBeta(const VectorXf& beta, int curIter);
+    int head_byte; // for beta
+    int content_byte; // for beta
 };
 
 #endif  //SBAYESRC_HPP

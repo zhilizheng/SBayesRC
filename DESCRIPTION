@@ -1,8 +1,8 @@
 Package: SBayesRC
 Type: Package
 Title: SBayesRC Method for Polygenic Prediction
-Version: 0.2.5
-Date: 2024-4-29
+Version: 0.2.6
+Date: 2024-6-29
 Description: This package implemented SBayesRC that incorporates functional annotations with high-density variants for polygenic prediction. 
 Authors@R: c(
   person("Zhili","Zheng", role=c("aut","cre"), email="zhilizheng@outlook.com"),
