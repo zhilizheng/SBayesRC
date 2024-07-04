@@ -1,7 +1,7 @@
 ## SBayesRC
-SBayesRC is a method that incorporates functional genomic annotations with high-density SNPs (> 7 millions) for polygenic prediction.  Our method requires summary statistics from GWAS and LD data only, details in our [paper](https://www.nature.com/articles/s41588-024-01704-y). It also estimates functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
+SBayesRC is a method that incorporates functional genomic annotations with high-density SNPs (> 7 millions) for polygenic prediction.  Our method requires summary statistics from GWAS and LD data only, as detailed in our [paper](https://www.nature.com/articles/s41588-024-01704-y). It also estimates functional genetic architecture parameters such as SNP-based heritability and polygenicity associated with the functional annotations. 
 
-This is the R implementation of SBayesRC that produced the results in the manuscript and had a good performance (benchmarked in the manuscript). This version has more experimental flags, but it is user-friendly as demonstrated in the example below. Method details 
+This is the R implementation of SBayesRC that produced the results in the manuscript and had a good performance (benchmarked in the manuscript). This version has more experimental flags, but it is user-friendly as demonstrated in the example below. 
 
 ## Minimal example
 A complete script to run SBayesRC without coding in R for Linux or Mac is provided below. Only the top few variables require modification.
