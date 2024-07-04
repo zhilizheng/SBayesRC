@@ -124,6 +124,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
     message("------------------------------------------")
 
     logger.begin(outfile, log2file)
+    baseOut = basename(outfile)
 
     if(log2file){
         message("------------------------------------------")
@@ -249,7 +250,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
     annoMat = matrix(0, ncol=0, nrow=0)
     numAnno = 0
     annoStrings = c("")
-    tempFileAnnot = file.path(mcmcDir, "SBayesRC.annot.tmp.bin")
+    tempFileAnnot = file.path(mcmcDir, paste0(baseOut, ".annot.tmp.bin"))
     if(bAnnot){
         anno = fread(fileAnnot, head=TRUE)
 
@@ -292,7 +293,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("Generating pseudo-summary...")
         ma_ord[, bhat:=bhat]
         pseudoSuma(ma_ord, ld_folder)
-        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat, bhat_t, bhat_v, n_train, n_val, bt_add, factor)], file=file.path(mcmcDir, paste0("SBayesRC_tune_inter.txt")), sep="\t", na="NA", quote=F)
+        fwrite(ma_ord[, .(SNP, A1, A2, freq, b, se, p, N, blk, bhat, bhat_t, bhat_v, n_train, n_val, bt_add, factor)], file=file.path(mcmcDir, paste0(baseOut, "_tune_inter.txt")), sep="\t", na="NA", quote=F)
 
         dt.n = ma_ord[, list(N=mean(n_train)), by=blk][order(blk)]
         n_train = as.numeric(dt.n$N)
@@ -309,7 +310,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("Perform tuning...")
         dt.tune = data.table()
         for(tune_thresh in tuneStep){
-            curFile = file.path(mcmcDir, paste0("SBayesRC_tune", tune_thresh))
+            curFile = file.path(mcmcDir, paste0(baseOut, "_tune", tune_thresh))
             message("--------------------------------")
             message("Tune with parameter ", tune_thresh)
             res = sbayesr_eigen_joint_annot(tuneIter, tuneBurn, bhat_t, 0, c(""), ld_folder, vary, n_train, gamma, startPi, rmSNPIndices, starth2, tune_thresh, bOri, curFile, cSamVe, resam_thresh, FALSE, outFreq, annoSigmaScale, FALSE)
@@ -321,7 +322,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         }
 
         dt.tune$rel_r = abs(dt.tune$r / dt.tune[thresh=="0.995"]$r)
-        fwrite(dt.tune, file=file.path(mcmcDir, paste0("SBayesRC_tune.txt")), sep="\t", quote=F, na="NA")
+        fwrite(dt.tune, file=file.path(mcmcDir, paste0(baseOut, "_tune.txt")), sep="\t", quote=F, na="NA")
         message("Tuning information:")
         options(digits = 3)        
         print(dt.tune)
@@ -356,7 +357,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
 
         message("Continue with best eigen variance cutoff: ", thresh)
         if(bTunePrior){
-            dt = readRDS(file.path(mcmcDir, paste0("SBayesRC_tune", thresh, ".rds")))
+            dt = readRDS(file.path(mcmcDir, paste0(baseOut, "_tune", thresh, ".rds")))
             startPi = dt$pi_hist[nrow(dt$pi_hist), ]
             starth2 = tail(dt$hsq_hist, 1)
             rm(dt)
@@ -375,7 +376,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
         message("The parameter file exists, loading the parameter instead of a re-run: ", outRes)
         res = readRDS(outRes)
     }else{
-        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, file.path(mcmcDir, "SBayesRC"), cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
+        res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, file.path(mcmcDir, baseOut), cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
         res[["scale"]] = ord_std
         saveRDS(res, file=outRes)
     }
@@ -409,7 +410,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
 
    if(numAnno != 0){
        # per-SNP heritability
-       curDT = fread(file.path(mcmcDir, paste0("SBayesRC.mcmcsamples.AnnoPerSnpHsqEnrichment")), sep=" ")
+       curDT = fread(file.path(mcmcDir, paste0(baseOut, ".mcmcsamples.AnnoPerSnpHsqEnrichment")), sep=" ")
        curMean = colMeans(curDT)
        curSD = sapply(curDT, sd)
        outDT = data.table(Annotation = names(curMean), Enrich = curMean, SD = curSD)
@@ -418,7 +419,7 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
        # comp pi
        outDTs = data.table()
        for(curComp in 1:nComp){
-           curDT = fread(file.path(mcmcDir, paste0("SBayesRC.mcmcsamples.AnnoJointProb_pi", curComp)), sep=" ")
+           curDT = fread(file.path(mcmcDir, paste0(baseOut, ".mcmcsamples.AnnoJointProb_pi", curComp)), sep=" ")
            curMean = colMeans(curDT)
            outDT = data.table(Comp=curComp, Gamma=gamma[curComp])
            outDTs = rbind(outDTs, cbind(outDT, t(curMean)))
@@ -472,8 +473,9 @@ pseudoSuma <- function(suma, ldm){
 #' @return no return value, will be output to wFile (SNP, A1, BETA)
 #' @export
 extractMCMCEff <- function(prefix, idx, wFile, scale=TRUE){
+    baseOut = basename(prefix)
     mcmcDir = paste0(prefix, ".mcmcsamples")
-    filename = file.path(mcmcDir, "SBayesRC.beta.bin")
+    filename = file.path(mcmcDir, paste0(baseOut, ".beta.bin"))
     if(!file.exists(filename)){
         stop("cannot find ", filename)
     }
@@ -483,7 +485,7 @@ extractMCMCEff <- function(prefix, idx, wFile, scale=TRUE){
         stop("cannot find ", txtFile)
     }
  
-    rmIdx = file.path(mcmcDir, "SBayesRC.rm.snpidx")
+    rmIdx = file.path(mcmcDir, paste0(baseOut, ".rm.snpidx"))
     rmIndex = c()
     if(file.exists(rmIdx)){
         rmIndex = as.integer(readLines(rmIdx))
