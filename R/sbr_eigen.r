@@ -378,6 +378,18 @@ sbayesrc = function(mafile, LDdir, outPrefix, annot="", log2file=FALSE,
     }else{
         res = sbayesr_eigen_joint_annot(niter, burn, bhat, numAnno, annoStrings, ld_folder, vary, n, gamma, startPi, rmSNPIndices, starth2, thresh, bOri, file.path(mcmcDir, baseOut), cSamVe, resam_thresh, bOutDetail, outFreq, annoSigmaScale, bOutBeta)
         res[["scale"]] = ord_std
+
+        rmIdx = file.path(mcmcDir, paste0(baseOut, ".rm.snpidx"))
+        rmIndex = c()
+        if(file.exists(rmIdx)){
+            rmIndex = as.integer(readLines(rmIdx))
+        }
+
+        if(length(rmIndex) != 0){
+            res$pip[rmIndex+1, 1] = 1
+            message("Correcting PIP")
+        }
+
         saveRDS(res, file=outRes)
     }
 

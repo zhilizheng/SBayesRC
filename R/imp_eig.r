@@ -128,6 +128,12 @@ impute = function(mafile, LDdir, output, thresh=0.995, log2file=FALSE){
 
     ma_out = rbindlist(all_ma)
     ma_out[, Block:=NULL]
+
+    # write out 0 for not imputed variants
+    ma_out[!is.finite(b), b:=0]
+    ma_out[!is.finite(se), se:=1]
+    ma_out[!is.finite(r2), r2:=-1]
+    ma_out[!is.finite(p), p:=1]
     fwrite(ma_out, file=output, sep="\t", quote=F, na="NA")
 
     message("Done.")
