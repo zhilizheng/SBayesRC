@@ -150,7 +150,7 @@ Runtime with 4 CPU cores:
 
 
 ## Install
-* Container version. Use container version if your cluster supports Docker or Apptainer (formerly Singularity), image address: `zhiliz/sbayesrc`. It's a good practise to include the version when run, e.g.,  `zhiliz/sbayesrc:0.2.5`, we will maintain the docker version same to R package version; however, the version can be ommited. The image doesn't require any installation, it integrates all depencencies, including R, PLINK and GCTB. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`. The default wrapper has the function to SBayesRC, LD generating, PRS, and SBayesRC-Multi, type `apptainer run docker://zhiliz/sbayesrc` for document and examples. The exmaple shown above in this tutorial is also a good start. If you need other parameters that were not provided by our wrapper script, you can pass your own R script directly, by run `apptainer exec docker://zhiliz/sbayesrc Rscript YOUR_SCRIPT`. It's also possible to create your own docker image to include your own script, by *FROM* keyword in Dockerfile and refer to our image. 
+* Container version. Use container version if your cluster supports Docker or Apptainer (formerly Singularity), image address: `zhiliz/sbayesrc`. It's a good practise to include the version when run, e.g.,  `zhiliz/sbayesrc:0.2.6`, we will maintain the docker version same to R package version; however, the version can be ommited. The image doesn't require any installation, it integrates all depencencies, including R, PLINK and GCTB. If you run multiple jobs with Apptainer, it's good to pre-cache by `apptainer pull docker://zhiliz/sbayesrc`. The default wrapper has the function to SBayesRC, LD generating, PRS, and SBayesRC-Multi, type `apptainer run docker://zhiliz/sbayesrc` for document and examples. The exmaple shown above in this tutorial is also a good start. If you need other parameters that were not provided by our wrapper script, you can pass your own R script directly, by run `apptainer exec docker://zhiliz/sbayesrc Rscript YOUR_SCRIPT`. It's also possible to create your own docker image to include your own script, by *FROM* keyword in Dockerfile and refer to our image. 
   
 * Install locally: A valid R is required. 
 ```r
@@ -159,7 +159,7 @@ Runtime with 4 CPU cores:
 install.packages(c("Rcpp", "data.table", "stringi", "BH",  "RcppEigen"))
 
 # Install SBayesRC package
-install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.5/SBayesRC_0.2.5.tar.gz",
+install.packages("https://github.com/zhilizheng/SBayesRC/releases/download/v0.2.6/SBayesRC_0.2.6.tar.gz",
                  repos=NULL, type="source")
 
 # If R report problem when installing, try alternative version (worse performance and an old version)
@@ -248,8 +248,15 @@ Block Chrom StartBP EndBP
 Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP [StartBP, EndBP). So the genome build version should be consistent between the block defination and the genotype. 
 
 ## News
+### v0.2.6
+* Added extractMCMCeff to read the SNP effects in the MCMC interations
+* Added readEig to read the eigen matrix
+* Changed the output files, put the files not quite interesting to .mcmcsamples folder
+* Various bug fix
+
 ### v0.2.5
 * Enhanced robustness when the meta-ed summary data has error
+* 
 ### v0.2.4
 * Fixed bug and add functions to caculate PRS and SBayesRC-multi
 
