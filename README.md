@@ -144,7 +144,7 @@ The outputs share the same name prefix (in the example: ${out\_prefix}\_sbrc):
 
 Runtime with 4 CPU cores:
 
-* 7 million SNPs with 96 annotation, estimated 8.5 hours, 74GB memory
+* 7 million SNPs with 96 annotation, estimated 8 hours, 74GB memory
 
 * 1 million HapMap3 SNPs with 96 annotation, estimated 0.8 hour, 5GB memory
 
@@ -249,8 +249,8 @@ Note: The blocking is based on the coordination, i.e., chromosome (Chrom) and BP
 
 ## News
 ### v0.2.6
-* Added extractMCMCeff to read the SNP effects in the MCMC interations
-* Added readEig to read the eigen matrix
+* Added "extractMCMCeff" to read the SNP effects from each MCMC iterations
+* Added "readEig" to read the eigen matrix
 * Changed the output files, put the files not quite interesting to .mcmcsamples folder
 * Various bug fix
 
