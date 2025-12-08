@@ -14,22 +14,23 @@
 #' @param scoreFlag string, flag to produce the PRS in PLINK2, default "1 2 3 header center"
 #' @param tool string, path to plink2 alpha; default plink2. Please note plink1.9 isn't supported (for pgen format)
 #' @param log2file boolean, FALSE: display message on terminal; TRUE: redirect to an output file; default value is FALSE
+#' @param freqFile string, path to the file specifying allele frequencies (as generated with PLINK's --freq)
 #' @return none, results in the specified output
 #' @export
-prs <- function(weight, genoPrefix, outPrefix, genoCHR="", snplist="", keepid="", scoreFlag="1 2 3 header center", tool="plink2", log2file=FALSE){
+prs <- function(weight, genoPrefix, outPrefix, genoCHR="", snplist="", keepid="", scoreFlag="1 2 3 header center", tool="plink2", log2file=FALSE, freqFile=NULL){
     message("Calculating PRS from weights and genotype...")
 
     logfile = paste0(outPrefix, ".log")
     logger.begin(logfile, log2file)
     if(log2file){
         message("Calculating PRS from weights and genotype...")
-    } 
+    }
 
     # check if multi CHR
     chrInfo = expandCHR(genoPrefix, genoCHR)
     bMultiCHR = chrInfo$bMultiCHR
     chrs = chrInfo$CHRs
- 
+
     # check the first genotype
     genoFlag = checkGenoFlag(chrInfo)
 
@@ -70,14 +71,16 @@ prs <- function(weight, genoPrefix, outPrefix, genoCHR="", snplist="", keepid=""
 
     threads = Sys.getenv("OMP_NUM_THREADS")
     if(threads != ""){
-        threads =paste0(" --threads ", threads) 
+        threads =paste0(" --threads ", threads)
     }
 
     numMarker = 0
     sumScore = 0
+    sFreqArg<-"" #mod
+    if(!is.null(freqFile)) sFreqArg<- paste0("--read-freq ",freqFile) #mod
     for(refGeno in chrInfo$genos){
         message("Processing genotype ", refGeno)
-        system(paste0(tool, genoFlag, refGeno, " --extract ", outFile, ".snplist",  " --score ", weight, " ", scoreFlag, keep, threads, " --memory 4096 --out ", outFile))
+        system(paste0(tool, genoFlag, refGeno, " --extract ", outFile, ".snplist",  " --score ", weight, " ", scoreFlag, keep, threads, " --memory 4096 --out ", outFile, sFreqArg))
         infile = paste0(outFile, ".sscore")
         dt.in = fread(infile, head=TRUE)
         all_cols = colnames(dt.in)
