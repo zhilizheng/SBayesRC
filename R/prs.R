@@ -77,7 +77,7 @@ prs <- function(weight, genoPrefix, outPrefix, genoCHR="", snplist="", keepid=""
     numMarker = 0
     sumScore = 0
     sFreqArg<-"" #mod
-    if(!is.null(freqFile)) sFreqArg<- paste0("--read-freq ",freqFile) #mod
+    if(!is.null(freqFile)) sFreqArg<- paste0(" --read-freq ",freqFile) #mod
     for(refGeno in chrInfo$genos){
         message("Processing genotype ", refGeno)
         system(paste0(tool, genoFlag, refGeno, " --extract ", outFile, ".snplist",  " --score ", weight, " ", scoreFlag, keep, threads, " --memory 4096 --out ", outFile, sFreqArg))
