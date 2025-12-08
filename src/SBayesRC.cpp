@@ -154,7 +154,7 @@ void SBayesRC::setOutBeta(bool bOut){
             Rcout << "Error: can't open [" << outPrefix << ".beta.bin] for writing" << std::endl;
             throw("ERROR");
         }
-        uint32_t size[2] = {thinIter, m};
+        uint32_t size[2] = {static_cast<uint32_t>(thinIter), static_cast<uint32_t>(m)};
         fwrite(size, sizeof(uint32_t), 2, fpBeta);
 
         head_byte = 2 * index_size;
@@ -207,11 +207,11 @@ void SBayesRC::mcmc(){
     MatrixXf cur_causal = MatrixXf::Zero(m, ndist);
     MatrixXf z = MatrixXf::Zero(m, ndist - 1);
     MatrixXf vg_snp_comp = MatrixXf::Zero(m, ndist);
-    VectorXf vg_comp(ndist); 
+    VectorXf vg_comp(ndist);
     VectorXf n_comp(ndist);
     VectorXf Ve_param(nBlocks);
 
-    
+
     for(int iter = 0; iter < niter; iter++){
         //Rcout << "------------------------------------" << std::endl;
         //Rcout << "iterStart " << iter << std::endl;
@@ -231,7 +231,7 @@ void SBayesRC::mcmc(){
             logPi = pi.array().log();
         }
 
-        //VectorXf logPiComp = (1.0 - pi.array()).log(); 
+        //VectorXf logPiComp = (1.0 - pi.array()).log();
         VectorXf wtSigmaSq;
         if(bOrigin){
             wtSigmaSq = fgamma.array() * 0.01 * varg;
@@ -241,7 +241,7 @@ void SBayesRC::mcmc(){
         VectorXf invSigmaSq = wtSigmaSq.array().inverse();
         VectorXf logSigmaSq = wtSigmaSq.array().log();
 
-        //Rcout << "  iter: " << iter <<  ", DEBUG clean memory" << std::endl; 
+        //Rcout << "  iter: " << iter <<  ", DEBUG clean memory" << std::endl;
         #pragma omp parallel for schedule(dynamic)
         for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
             whats[idxBlk].setZero();
@@ -250,7 +250,7 @@ void SBayesRC::mcmc(){
 
         //Rcout << "  prepare: " << (timer.now() - tic)/1e9 << std::endl;
 
-        //Rcout << "  iter: " << iter <<  ", DEBUG start main" << std::endl; 
+        //Rcout << "  iter: " << iter <<  ", DEBUG start main" << std::endl;
         #pragma omp parallel for schedule(dynamic)
         for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
             //Rcout << "Blk: " << idxBlk << std::endl;
@@ -385,7 +385,7 @@ void SBayesRC::mcmc(){
         //if(estimateSigmaSq) sigmaSq = (dot(beta, beta) + nub*scaleb)/rchisq(1, nnz+nub)[0];
         //if(estimateSigmaSq) sigmaSq = median(cur_SigmaSqs);
         // float hsq = 0.5 * cur_SigmaSqs.sum();
-        //Rcout << "  iter: " << iter <<  ", DEBUG V" << std::endl; 
+        //Rcout << "  iter: " << iter <<  ", DEBUG V" << std::endl;
         varg = Vg_block.sum();
         VectorXf vg_snps = beta.array().square();
         float varg2 = vg_snps.sum();
@@ -399,7 +399,7 @@ void SBayesRC::mcmc(){
             int curEnd = blockLDeig.getIdxEnd(idxBlk);
             ssq_block[idxBlk] = vg_snps.segment(curStart, curEnd - curStart + 1).sum();
         }
- 
+
         // resample Ve
         if(curSamVe == "fixVe"){
             for(int idxBlk = 0; idxBlk < nBlocks; idxBlk++){
@@ -464,7 +464,7 @@ void SBayesRC::mcmc(){
             if(curParam > 0){
                 float sample1 = InvChiSq::sample(blockLDeig.getq(idxBlk) + nue, curParam);
                 if(sample1 / vary > 0.7){
-                    vare[idxBlk] = sample1; 
+                    vare[idxBlk] = sample1;
                 }else{
                     vare[idxBlk] = vary;
                 }
@@ -476,7 +476,7 @@ void SBayesRC::mcmc(){
 
         /*
         MatrixXf vg_snp_comp = cur_causal.array().colwise() * vg_snps.array();
-        VectorXf vg_comp = vg_snp_comp.colwise().sum().array() / varg2; 
+        VectorXf vg_comp = vg_snp_comp.colwise().sum().array() / varg2;
         VectorXf n_comp = cur_causal.colwise().sum();
         */
         #pragma omp parallel for
@@ -487,7 +487,7 @@ void SBayesRC::mcmc(){
         }
 
         //Rcout << "  finish Vg cal: " << (timer.now() - tic)/1e9 << std::endl;
-        //Rcout << "  iter: " << iter <<  ", DEBUG sigmasq" << std::endl; 
+        //Rcout << "  iter: " << iter <<  ", DEBUG sigmasq" << std::endl;
         float hsq = varg / vary;
         //estimateSigmaSq = false;
         if(estimateSigmaSq){
@@ -503,7 +503,7 @@ void SBayesRC::mcmc(){
             sigmaSq = varg / (m * fgamma.dot(pi));
         }
 
-        //Rcout << "  iter: " << iter <<  ", DEBUG Pi" << std::endl; 
+        //Rcout << "  iter: " << iter <<  ", DEBUG Pi" << std::endl;
         //estimatePi = false;
         if(estimatePi){
             if(bAnnot){
@@ -542,8 +542,8 @@ void SBayesRC::mcmc(){
             int nnz = n_comp.sum() - n_comp[0];
             if(!((iter+1) % (outFreq * 10))){
                 double t100 = timer.elapse("sbrc");
-                //Rprintf("\n iter %i, pi = %6.3f, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f, time = %6.3f\n", iter + 1, pi, nnz, sigmaSq, hsq, m_vare, varg, t100); 
-                //Rprintf("\n iter %i, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f,  varg2 = %6.3f, time = %6.3f\n", iter + 1, nnz, sigmaSq, hsq, m_vare, varg, varg2, t100); 
+                //Rprintf("\n iter %i, pi = %6.3f, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f, time = %6.3f\n", iter + 1, pi, nnz, sigmaSq, hsq, m_vare, varg, t100);
+                //Rprintf("\n iter %i, nnz = %i, sigmaSq = %6.3f, hsq = %6.3f, vare = %6.3f, varg = %6.3f,  varg2 = %6.3f, time = %6.3f\n", iter + 1, nnz, sigmaSq, hsq, m_vare, varg, varg2, t100);
                 // check the SNPs
                 int NdelSNPs = 0;
                 VectorXf betaVals = betasum_all.array() / (iter + 1);
@@ -608,7 +608,7 @@ void SBayesRC::mcmc(){
                     }
                 }
 
- 
+
                 //
                 string n_str = "";
                 string vg_str = "";
@@ -618,7 +618,7 @@ void SBayesRC::mcmc(){
                     string vg_temp1 = vg_temp0.substr(0, vg_temp0.find(".") + 3 + 1);
                     vg_str = vg_str + "vg" + to_string(i+1) + "=" + vg_temp1 + ", ";
                 }
-                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), t100); 
+                Rprintf("  Iter %i, nnz=%i, sigmaSq=%.3f, hsq=%.3f, ssq=%.3f, %s%s vare=%.3f, rmVariants=%i, time=%.3f\n", iter + 1, nnz, sigmaSq, hsq, hsq2, n_str.c_str(), vg_str.c_str(), m_vare, vDelSNPs.sum(), t100);
 
                 //Rcout << "ProbDelta Mean: " << probDeltas.mean() << std::endl;
                 timer.start("sbrc");

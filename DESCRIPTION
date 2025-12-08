@@ -29,3 +29,4 @@ VignetteBuilder: knitr
 NeedsCompilation: yes
 ByteCompile: TRUE
 Encoding: UTF-8
+SystemRequirements: C++14
